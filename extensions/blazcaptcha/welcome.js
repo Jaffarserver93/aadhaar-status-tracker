@@ -1,0 +1,1 @@
+(()=>{"use strict";document.querySelectorAll("[data-i18n]").forEach(t=>{const e=t.getAttribute("data-i18n"),n=chrome.i18n.getMessage(e);n&&(t.textContent=n)});const t=chrome.i18n.getUILanguage();document.documentElement.lang=t;const e=document.querySelector("title[data-i18n]");if(e){const t=e.getAttribute("data-i18n"),n=chrome.i18n.getMessage(t);n&&(document.title=n)}})();

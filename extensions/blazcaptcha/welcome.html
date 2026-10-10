@@ -1,0 +1,137 @@
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><title data-i18n="welcomePageTitle">BlazCaptcha</title><style>* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+.card {
+  width: 1280px; max-width: 96vw; background: white; border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12); overflow: hidden;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #0a1628 0%, #1a3a6b 100%);
+  padding: 24px 40px; display: flex; align-items: center; gap: 16px;
+}
+.header img { width: 48px; height: 48px; border-radius: 10px; }
+.header h1 { color: white; font-size: 24px; font-weight: 700; }
+.header .subtitle { color: rgba(255,255,255,0.7); font-size: 14px; margin-top: 2px; }
+
+/* Content */
+.content { display: flex; gap: 24px; padding: 28px 32px; }
+
+/* Feature panels */
+.panel {
+  flex: 1; min-width: 0; background: #f8f9fb; border-radius: 12px; padding: 22px;
+  border: 2px solid #e8eaf0; position: relative; display: flex; flex-direction: column;
+}
+.panel-number {
+  position: absolute; top: -14px; left: 24px; background: #ff4757; color: white;
+  font-size: 13px; font-weight: 700; padding: 4px 14px; border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+.panel:nth-child(2) .panel-number { background: #2ed573; }
+.panel:nth-child(3) .panel-number { background: #3742fa; }
+
+.panel h2 { font-size: 17px; color: #1a1a2e; margin-bottom: 10px; margin-top: 8px; }
+.panel p { font-size: 12px; color: #666; line-height: 1.5; margin-bottom: 12px; }
+
+/* Demo areas */
+.demo-area {
+  flex: 1; background: white; border-radius: 8px; border: 1px solid #ddd;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+
+/* Panel 1: Click button */
+.captcha-demo {
+  display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%;
+  padding: 16px;
+}
+.captcha-img-row { display: flex; align-items: center; gap: 8px; }
+.captcha-img {
+  width: 200px; height: 50px; background: #222; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Courier New', monospace; font-size: 28px; font-weight: bold;
+  color: #ccc; letter-spacing: 6px; text-decoration: line-through;
+  position: relative; overflow: hidden;
+}
+.captcha-img::before {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255,255,255,0.05) 3px, rgba(255,255,255,0.05) 6px);
+}
+.solve-btn {
+  width: 32px; height: 32px; border: 2px solid #ccc; border-radius: 6px;
+  background: white; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; cursor: default; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.solve-btn.success { background: #d4edda; border-color: #28a745; }
+
+.input-row { display: flex; align-items: center; gap: 8px; }
+.captcha-input {
+  width: 200px; height: 34px; border: 2px solid #22cc44; border-radius: 4px;
+  padding: 0 10px; font-size: 16px; font-family: monospace; color: #333;
+  background: #f0fff4;
+}
+.validate-btn {
+  padding: 6px 16px; background: #eee; border: 1px solid #ccc; border-radius: 4px;
+  font-size: 14px; cursor: default;
+}
+
+.arrow-label {
+  position: relative; background: #ff4757; color: white; padding: 5px 12px;
+  border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.arrow-label.green { background: #22cc44; }
+
+/* Panel 2: Right-click */
+.context-menu {
+  background: white; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+  border: 1px solid #ddd; width: 220px; overflow: hidden;
+}
+.ctx-item {
+  padding: 8px 16px; font-size: 13px; color: #333; display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.ctx-item.highlight {
+  background: #e8f0fe; color: #1a73e8;
+}
+.ctx-item .icon { font-size: 14px; width: 20px; text-align: center; }
+.ctx-sep { height: 1px; background: #e0e0e0; margin: 2px 0; }
+
+.toast-demo {
+  position: absolute; top: 12px; right: 12px;
+  background: #333; color: white; padding: 10px 16px; border-radius: 8px;
+  font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); max-width: 240px;
+}
+.toast-demo .result { color: #4fc3f7; font-weight: bold; font-size: 16px; letter-spacing: 2px; }
+.toast-demo .hint { color: #aaa; font-size: 10px; margin-top: 4px; }
+
+/* Panel 3: Popup */
+.popup-mock {
+  width: 260px; background: white; border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid #e0e0e0;
+  overflow: hidden;
+}
+.popup-header {
+  padding: 14px 16px; border-bottom: 1px solid #eee;
+  font-size: 14px; font-weight: 700; color: #1a1a2e;
+}
+.popup-section { padding: 12px 16px; }
+.popup-section h3 { font-size: 12px; color: #666; margin-bottom: 8px; }
+.drop-zone {
+  border: 2px dashed #ccc; border-radius: 8px; padding: 20px;
+  text-align: center; font-size: 12px; color: #999;
+}
+.popup-result {
+  margin-top: 10px; background: #f0fff4; border-radius: 6px; padding: 8px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.popup-result .label { font-size: 11px; color: #666; }
+.popup-result .value { font-family: monospace; font-size: 16px; font-weight: bold; color: #333; }
+.popup-result .copy-btn { font-size: 14px; cursor: default; background: none; border: none; }
+
+/* Responsive */
+@media (max-width: 1300px) {
+  .card { width: auto; margin: 16px; }
+  .content { flex-direction: column; }
+}</style><script defer="defer" src="welcome.js"></script></head><body><div class="card"><div class="header"><img src="icons/icon128.png" alt="BlazCaptcha"><div><h1>BlazCaptcha</h1><div class="subtitle" data-i18n="welcomeSubtitle"></div></div></div><div class="content"><div class="panel"><span class="panel-number" data-i18n="welcomeMethod1"></span><h2 data-i18n="welcomeMethod1Title"></h2><p data-i18n="welcomeMethod1Desc"></p><div class="demo-area"><div class="captcha-demo"><div style="font-size:12px;color:#666;align-self:flex-start;" data-i18n="welcomeRetypeLabel"></div><div class="captcha-img-row"><div class="captcha-img">X7kP2m</div><div class="solve-btn success">&#10003;</div><div class="arrow-label" data-i18n="welcomeClickLabel"></div></div><div class="input-row"><input class="captcha-input" value="X7kP2m" readonly="readonly"> <button class="validate-btn" data-i18n="welcomeValidateBtn"></button></div><div class="arrow-label green" data-i18n="welcomeAutoFilled"></div></div></div></div><div class="panel"><span class="panel-number" data-i18n="welcomeMethod2"></span><h2 data-i18n="welcomeMethod2Title"></h2><p data-i18n="welcomeMethod2Desc"></p><div class="demo-area" style="align-items: flex-start; padding: 20px;"><div style="display:flex; gap:16px; align-items: flex-start; width:100%;"><div class="captcha-img" style="width:140px; height:40px; font-size:20px;">Ab3Qz</div><div class="context-menu"><div class="ctx-item"><span class="icon">&#128279;</span> <span data-i18n="welcomeCtxOpen"></span></div><div class="ctx-item"><span class="icon">&#128190;</span> <span data-i18n="welcomeCtxSave"></span></div><div class="ctx-sep"></div><div class="ctx-item highlight"><span class="icon">&#128270;</span> <strong data-i18n="welcomeCtxRecognize"></strong></div><div class="ctx-sep"></div><div class="ctx-item"><span class="icon">&#128203;</span> <span data-i18n="welcomeCtxCopy"></span></div></div></div><div class="toast-demo"><div><span data-i18n="welcomeToastResult"></span><span class="result">Ab3Qz</span></div><div class="hint" data-i18n="welcomeToastHint"></div></div></div></div><div class="panel"><span class="panel-number" data-i18n="welcomeMethod3"></span><h2 data-i18n="welcomeMethod3Title"></h2><p data-i18n="welcomeMethod3Desc"></p><div class="demo-area"><div class="popup-mock"><div class="popup-header">BlazCaptcha</div><div class="popup-section"><h3 data-i18n="manualRecognition"></h3><div class="drop-zone" data-i18n="welcomeDropZone"></div><div class="popup-result"><div><div class="label" data-i18n="resultLabel"></div><div class="value">Hn4Wp9</div></div><button class="copy-btn">&#128203;</button></div></div></div></div></div></div></div></body></html>

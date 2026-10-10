@@ -1,0 +1,118 @@
+{
+  "extName": {
+    "message": "BlazCaptcha: 免費、輕量的圖片驗證碼填入工具"
+  },
+  "extDescription": {
+    "message": "使用本地 OCR 即時辨識圖片驗證碼。三種使用方式：點擊驗證碼旁的按鈕、右鍵點擊圖片、或將圖片貼到彈出視窗。無需伺服器、無需 API 金鑰、無需註冊，完全免費且保護隱私。"
+  },
+  "autoDetect": {
+    "message": "\u81ea\u52d5\u5075\u6e2c"
+  },
+  "manualRecognition": {
+    "message": "\u624b\u52d5\u8fa8\u8b58"
+  },
+  "dropZoneHint": {
+    "message": "\u62d6\u653e\u6216\u8cbc\u4e0a\u5716\u7247"
+  },
+  "resultLabel": {
+    "message": "\u7d50\u679c\uff1a"
+  },
+  "copyTitle": {
+    "message": "\u8907\u88fd"
+  },
+  "recentHistory": {
+    "message": "\u6700\u8fd1\u7d00\u9304"
+  },
+  "noRecords": {
+    "message": "\u5c1a\u7121\u7d00\u9304"
+  },
+  "recognizing": {
+    "message": "\u8fa8\u8b58\u4e2d..."
+  },
+  "errorPrefix": {
+    "message": "\u932f\u8aa4\uff1a$error$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "contextMenuTitle": {
+    "message": "\u8fa8\u8b58\u9019\u500b\u9a57\u8b49\u78bc"
+  },
+  "recognizeButton": {
+    "message": "\u8fa8\u8b58\u9a57\u8b49\u78bc"
+  },
+  "captchaResult": {
+    "message": "\u9a57\u8b49\u78bc\u7d50\u679c\uff1a"
+  },
+  "clickToFillHint": {
+    "message": "\u5df2\u8907\u88fd\uff01\u9ede\u64ca\u4efb\u610f\u8f38\u5165\u6846\u586b\u5165\uff0c\u6216\u6309 Esc \u53d6\u6d88"
+  },
+  "welcomePageTitle": {
+    "message": "\u6b61\u8fce\u4f7f\u7528 BlazCaptcha"
+  },
+  "welcomeSubtitle": {
+    "message": "\u514d\u8cbb\u3001\u8f15\u91cf\u7684\u5716\u7247\u9a57\u8b49\u78bc\u586b\u5165\u5de5\u5177 \u2014 \u4e09\u7a2e\u4f7f\u7528\u65b9\u5f0f"
+  },
+  "welcomeMethod1": {
+    "message": "\u65b9\u6cd5 1"
+  },
+  "welcomeMethod2": {
+    "message": "\u65b9\u6cd5 2"
+  },
+  "welcomeMethod3": {
+    "message": "\u65b9\u6cd5 3"
+  },
+  "welcomeMethod1Title": {
+    "message": "\uD83D\uDD0D \u9ede\u64ca\u6309\u9215"
+  },
+  "welcomeMethod2Title": {
+    "message": "\uD83D\uDDB1\uFE0F \u53f3\u9375\u9ede\u64ca\u5716\u7247"
+  },
+  "welcomeMethod3Title": {
+    "message": "\uD83D\uDCCB \u8cbc\u4e0a\u5716\u7247\u5230\u5f48\u51fa\u8996\u7a97"
+  },
+  "welcomeMethod1Desc": {
+    "message": "\u81ea\u52d5\u5075\u6e2c\u5230\u7684\u9a57\u8b49\u78bc\u65c1\u6703\u51fa\u73fe\u8fa8\u8b58\u6309\u9215\uff0c\u9ede\u64ca\u5373\u53ef\u81ea\u52d5\u586b\u5165\u7b54\u6848\u3002"
+  },
+  "welcomeMethod2Desc": {
+    "message": "\u5728\u4efb\u4f55\u9a57\u8b49\u78bc\u5716\u7247\u4e0a\u6309\u53f3\u9375\uff0c\u9078\u64c7\u300c\u8fa8\u8b58\u9019\u500b\u9a57\u8b49\u78bc\u300d\u3002"
+  },
+  "welcomeMethod3Desc": {
+    "message": "\u9ede\u64ca\u64f4\u5145\u529f\u80fd\u5716\u793a\u958b\u555f\u5f48\u51fa\u8996\u7a97\uff0c\u8cbc\u4e0a\u6216\u62d6\u653e\u9a57\u8b49\u78bc\u5716\u7247\u5373\u53ef\u8fa8\u8b58\u3002"
+  },
+  "welcomeRetypeLabel": {
+    "message": "\u8acb\u8f38\u5165\u9a57\u8b49\u78bc\uff1a"
+  },
+  "welcomeClickLabel": {
+    "message": "\u9ede\u64ca\uff01"
+  },
+  "welcomeValidateBtn": {
+    "message": "\u9a57\u8b49"
+  },
+  "welcomeAutoFilled": {
+    "message": "\u81ea\u52d5\u586b\u5165\uff01"
+  },
+  "welcomeCtxOpen": {
+    "message": "\u958b\u555f\u5716\u7247"
+  },
+  "welcomeCtxSave": {
+    "message": "\u5716\u7247\u53e6\u5b58\u70ba..."
+  },
+  "welcomeCtxRecognize": {
+    "message": "\u8fa8\u8b58\u9019\u500b\u9a57\u8b49\u78bc"
+  },
+  "welcomeCtxCopy": {
+    "message": "\u8907\u88fd\u5716\u7247"
+  },
+  "welcomeToastResult": {
+    "message": "\u9a57\u8b49\u78bc\u7d50\u679c\uff1a"
+  },
+  "welcomeToastHint": {
+    "message": "\u5df2\u8907\u88fd\uff01\u9ede\u64ca\u4efb\u610f\u8f38\u5165\u6846\u586b\u5165\u3002"
+  },
+  "welcomeDropZone": {
+    "message": "\uD83D\uDCCE \u62d6\u653e\u6216\u8cbc\u4e0a\u5716\u7247"
+  }
+}

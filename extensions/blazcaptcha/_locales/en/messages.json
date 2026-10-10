@@ -1,0 +1,118 @@
+{
+  "extName": {
+    "message": "BlazCaptcha: Free and Lightweight Image Captcha Solver"
+  },
+  "extDescription": {
+    "message": "Solve image CAPTCHAs with local OCR. Click the button, right-click an image, or paste in popup. No server, no API key — 100% free."
+  },
+  "autoDetect": {
+    "message": "Auto Detect"
+  },
+  "manualRecognition": {
+    "message": "Manual Recognition"
+  },
+  "dropZoneHint": {
+    "message": "Drag & drop or paste an image"
+  },
+  "resultLabel": {
+    "message": "Result:"
+  },
+  "copyTitle": {
+    "message": "Copy"
+  },
+  "recentHistory": {
+    "message": "Recent History"
+  },
+  "noRecords": {
+    "message": "No records yet"
+  },
+  "recognizing": {
+    "message": "Recognizing..."
+  },
+  "errorPrefix": {
+    "message": "Error: $error$",
+    "placeholders": {
+      "error": {
+        "content": "$1"
+      }
+    }
+  },
+  "contextMenuTitle": {
+    "message": "Recognize this CAPTCHA"
+  },
+  "recognizeButton": {
+    "message": "Recognize CAPTCHA"
+  },
+  "captchaResult": {
+    "message": "CAPTCHA result: "
+  },
+  "clickToFillHint": {
+    "message": "Copied! Click any input field to fill, or press Esc to cancel"
+  },
+  "welcomePageTitle": {
+    "message": "Welcome to BlazCaptcha"
+  },
+  "welcomeSubtitle": {
+    "message": "Free and Lightweight Image CAPTCHA Solver — 3 Ways to Use"
+  },
+  "welcomeMethod1": {
+    "message": "METHOD 1"
+  },
+  "welcomeMethod2": {
+    "message": "METHOD 2"
+  },
+  "welcomeMethod3": {
+    "message": "METHOD 3"
+  },
+  "welcomeMethod1Title": {
+    "message": "\uD83D\uDD0D Click the Button"
+  },
+  "welcomeMethod2Title": {
+    "message": "\uD83D\uDDB1\uFE0F Right-Click Image"
+  },
+  "welcomeMethod3Title": {
+    "message": "\uD83D\uDCCB Paste in Popup"
+  },
+  "welcomeMethod1Desc": {
+    "message": "Auto-detected CAPTCHA gets a solve button. Click it to auto-fill the answer."
+  },
+  "welcomeMethod2Desc": {
+    "message": "Right-click any CAPTCHA image and select \"Recognize this CAPTCHA\" from the menu."
+  },
+  "welcomeMethod3Desc": {
+    "message": "Open the extension popup, paste or drop a CAPTCHA image to recognize it."
+  },
+  "welcomeRetypeLabel": {
+    "message": "Retype the characters:"
+  },
+  "welcomeClickLabel": {
+    "message": "Click!"
+  },
+  "welcomeValidateBtn": {
+    "message": "Validate"
+  },
+  "welcomeAutoFilled": {
+    "message": "Auto-filled!"
+  },
+  "welcomeCtxOpen": {
+    "message": "Open Image"
+  },
+  "welcomeCtxSave": {
+    "message": "Save Image As..."
+  },
+  "welcomeCtxRecognize": {
+    "message": "Recognize this CAPTCHA"
+  },
+  "welcomeCtxCopy": {
+    "message": "Copy Image"
+  },
+  "welcomeToastResult": {
+    "message": "CAPTCHA result: "
+  },
+  "welcomeToastHint": {
+    "message": "Copied! Click any input to fill."
+  },
+  "welcomeDropZone": {
+    "message": "\uD83D\uDCCE Drag & drop or paste an image"
+  }
+}
