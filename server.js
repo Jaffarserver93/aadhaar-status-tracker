@@ -74,6 +74,10 @@ app.use(
   })
 );
 
+// Health check endpoints for Railway
+app.get('/health', (req, res) => res.status(200).send('OK'));
+app.get('/api/health', (req, res) => res.status(200).json({ status: 'ok', uptime: process.uptime() }));
+
 // Auth check middleware
 function requireAuth(req, res, next) {
   if (!req.session.userId) {
