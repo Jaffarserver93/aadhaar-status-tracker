@@ -1,0 +1,14 @@
+node_modules/
+browser_profiles/
+browser_profile/
+test_profile/
+*.log
+tracker.db*
+.env
+git_push.js
+desktop.ini
+public/screenshots/*
+!public/screenshots/.gitkeep
+public/*.jpg
+data/
+

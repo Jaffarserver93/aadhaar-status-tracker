@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tracker Details & Audit History</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+
+  <!-- Top Nav -->
+  <nav class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/dashboard.html" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-all flex items-center gap-1.5 text-xs font-semibold">
+          <span>&larr;</span> Back to Dashboard
+        </a>
+        <span class="text-slate-600">|</span>
+        <span class="font-bold text-base text-white tracking-wide">Tracker Details & History</span>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button id="recheckBtn" class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-semibold transition-all shadow-md shadow-indigo-600/20 flex items-center gap-1.5 text-white">
+          <span id="recheckIcon">🔄</span> Re-check Now
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+    
+    <!-- Loading Skeleton -->
+    <div id="loadingBox" class="p-12 text-center text-slate-500 text-sm">
+      <div class="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+      Loading tracker history & screenshots...
+    </div>
+
+    <!-- Error Box -->
+    <div id="errorBox" class="hidden p-6 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-2xl text-center"></div>
+
+    <!-- Main Content Container -->
+    <div id="contentContainer" class="hidden space-y-6">
+      
+      <!-- Tracker Overview Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="space-y-2">
+          <div class="flex items-center gap-3">
+            <span id="typeBadge" class="text-xs font-bold px-2.5 py-1 rounded-md bg-indigo-950 text-indigo-300 border border-indigo-800 tracking-wider"></span>
+            <span id="statusBadge"></span>
+          </div>
+          <h1 id="identifierText" class="text-2xl sm:text-3xl font-mono font-bold text-white tracking-wider"></h1>
+          <p id="detailsText" class="text-sm text-slate-400 leading-relaxed max-w-2xl"></p>
+        </div>
+
+        <div class="text-left md:text-right text-xs text-slate-400 space-y-1 bg-slate-950/60 p-4 rounded-xl border border-slate-800">
+          <div>Created: <span id="createdText" class="text-slate-300 font-medium font-mono"></span></div>
+          <div>Last Checked: <span id="lastCheckedText" class="text-slate-300 font-medium font-mono"></span></div>
+          <div>Total Checks: <span id="totalChecksText" class="text-indigo-400 font-bold font-mono"></span></div>
+        </div>
+      </div>
+
+      <!-- Two-Column Layout: Latest Screenshot & History Timeline -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Latest Screenshot Preview -->
+        <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="text-indigo-400">📸</span>
+              <h3 class="font-bold text-sm tracking-wide text-slate-200 uppercase">Latest Verification Screenshot</h3>
+            </div>
+            <a id="downloadShotLink" href="#" target="_blank" class="text-xs text-indigo-400 hover:text-indigo-300 hover:underline">Open Full Size ↗</a>
+          </div>
+
+          <div class="relative bg-black rounded-xl overflow-hidden border border-slate-800 min-h-[350px] flex items-center justify-center">
+            <img id="latestScreenshotImg" src="" alt="Portal Screenshot" class="w-full h-auto object-contain max-h-[500px] cursor-pointer hover:opacity-95 transition-opacity" title="Click to view full size">
+            <div id="noScreenshotPrompt" class="hidden text-xs text-slate-500 italic p-8 text-center">
+              No verification screenshot captured yet. Click "Re-check Now" to perform initial verification.
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Check History Timeline -->
+        <div class="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4 flex flex-col max-h-[600px]">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-400">🕒</span>
+              <h3 class="font-bold text-sm tracking-wide text-slate-200 uppercase">Check History Timeline</h3>
+            </div>
+            <span id="historyCountBadge" class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-mono">0 runs</span>
+          </div>
+
+          <div id="historyList" class="space-y-3 overflow-y-auto flex-1 pr-1"></div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Image Lightbox Modal -->
+  <div id="imageLightbox" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <button id="closeLightboxBtn" class="absolute top-4 right-6 text-white text-3xl hover:text-rose-400 transition-colors">&times;</button>
+    <img id="lightboxImg" src="" class="max-w-full max-h-[90vh] rounded-xl shadow-2xl border border-slate-700">
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Extract identifier from URL path (e.g. /S1331127444880 or ?id=...)
+      let identifier = window.location.pathname.replace(/^\/+/, '');
+      if (!identifier || identifier === 'tracker_detail.html') {
+        const params = new URLSearchParams(window.location.search);
+        identifier = params.get('id') || params.get('identifier');
+      }
+
+      if (!identifier) {
+        document.getElementById('loadingBox').classList.add('hidden');
+        document.getElementById('errorBox').innerText = 'No reference identifier provided in URL.';
+        document.getElementById('errorBox').classList.remove('hidden');
+        return;
+      }
+
+      let currentTrackerId = null;
+
+      async function loadDetails() {
+        try {
+          const res = await fetch(`/api/trackers/${encodeURIComponent(identifier)}/details`);
+          if (res.status === 401) {
+            window.location.href = '/';
+            return;
+          }
+          if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.error || 'Tracker not found.');
+          }
+
+          const { tracker, history } = await res.json();
+          currentTrackerId = tracker.id;
+          renderDetails(tracker, history);
+        } catch (err) {
+          document.getElementById('loadingBox').classList.add('hidden');
+          document.getElementById('errorBox').innerText = err.message;
+          document.getElementById('errorBox').classList.remove('hidden');
+        }
+      }
+
+      function renderDetails(t, history) {
+        document.getElementById('loadingBox').classList.add('hidden');
+        document.getElementById('contentContainer').classList.remove('hidden');
+
+        document.getElementById('typeBadge').innerText = t.type;
+        document.getElementById('identifierText').innerText = t.identifier_number;
+        document.getElementById('detailsText').innerText = t.status_details || 'No status details available.';
+        document.getElementById('createdText').innerText = new Date(t.created_at).toLocaleString();
+        document.getElementById('lastCheckedText').innerText = t.last_checked_at ? new Date(t.last_checked_at).toLocaleString() : 'Never';
+        document.getElementById('totalChecksText').innerText = history.length;
+        document.getElementById('historyCountBadge').innerText = `${history.length} runs`;
+
+        // Status Badge
+        const status = t.current_status || 'Processing';
+        let badgeHtml = '';
+        if (status === 'Completed') {
+          badgeHtml = '<span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✓ Completed</span>';
+        } else if (status === 'Processing') {
+          badgeHtml = '<span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20"><span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> In Progress</span>';
+        } else {
+          badgeHtml = '<span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">⚠ Action Required / Failed</span>';
+        }
+        document.getElementById('statusBadge').innerHTML = badgeHtml;
+
+        // Latest Screenshot
+        const latestShot = t.latest_screenshot || (history.length > 0 ? history[0].screenshot_path : '');
+        const shotImg = document.getElementById('latestScreenshotImg');
+        const noShotPrompt = document.getElementById('noScreenshotPrompt');
+        const dlLink = document.getElementById('downloadShotLink');
+
+        if (latestShot) {
+          shotImg.src = latestShot;
+          shotImg.classList.remove('hidden');
+          noShotPrompt.classList.add('hidden');
+          dlLink.href = latestShot;
+          dlLink.classList.remove('hidden');
+        } else {
+          shotImg.classList.add('hidden');
+          noShotPrompt.classList.remove('hidden');
+          dlLink.classList.add('hidden');
+        }
+
+        // Render History Timeline
+        const histList = document.getElementById('historyList');
+        histList.innerHTML = '';
+
+        if (history.length === 0) {
+          histList.innerHTML = '<div class="text-xs text-slate-500 italic text-center py-6">No historical records yet.</div>';
+        } else {
+          history.forEach((h, index) => {
+            const row = document.createElement('div');
+            row.className = 'bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 space-y-2 hover:border-slate-700 transition-all';
+
+            const timeStr = new Date(h.checked_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' });
+            
+            let statusPill = '';
+            if (h.status === 'Completed') statusPill = '<span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">Completed</span>';
+            else if (h.status === 'Processing') statusPill = '<span class="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">In Progress</span>';
+            else statusPill = '<span class="text-[10px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded">Failed</span>';
+
+            row.innerHTML = `
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-mono text-slate-500 font-bold">#${history.length - index}</span>
+                  ${statusPill}
+                </div>
+                <span class="text-[11px] font-mono text-slate-400">${timeStr}</span>
+              </div>
+              <div class="text-xs text-slate-300 leading-relaxed">${h.status_details || 'Check completed.'}</div>
+              ${h.screenshot_path ? `
+                <div class="pt-1">
+                  <a href="${h.screenshot_path}" target="_blank" class="inline-flex items-center gap-1.5 text-[11px] text-indigo-400 hover:text-indigo-300 underline">
+                    <span>📷</span> View Run Screenshot
+                  </a>
+                </div>
+              ` : ''}
+            `;
+            histList.appendChild(row);
+          });
+        }
+      }
+
+      // Lightbox Handlers
+      const lightbox = document.getElementById('imageLightbox');
+      const lightboxImg = document.getElementById('lightboxImg');
+      document.getElementById('latestScreenshotImg').addEventListener('click', () => {
+        const src = document.getElementById('latestScreenshotImg').src;
+        if (src) {
+          lightboxImg.src = src;
+          lightbox.classList.remove('hidden');
+        }
+      });
+      document.getElementById('closeLightboxBtn').addEventListener('click', () => lightbox.classList.add('hidden'));
+      lightbox.addEventListener('click', (e) => { if (e.target === lightbox) lightbox.classList.add('hidden'); });
+
+      // Re-check button
+      const recheckBtn = document.getElementById('recheckBtn');
+      const recheckIcon = document.getElementById('recheckIcon');
+      recheckBtn.addEventListener('click', async () => {
+        if (!currentTrackerId) return;
+        recheckIcon.classList.add('animate-spin');
+        recheckBtn.disabled = true;
+
+        try {
+          await fetch(`/api/trackers/${currentTrackerId}/check`, { method: 'POST' });
+          // Poll every 2s for 10s to reflect updated status and screenshot
+          for (let i = 0; i < 5; i++) {
+            await new Promise(r => setTimeout(r, 2000));
+            await loadDetails();
+          }
+        } catch (err) {
+          console.error('Recheck error:', err);
+        } finally {
+          recheckIcon.classList.remove('animate-spin');
+          recheckBtn.disabled = false;
+        }
+      });
+
+      // Initial Load
+      loadDetails();
+    });
+  </script>
+</body>
+</html>

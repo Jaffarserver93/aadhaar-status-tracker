@@ -1,0 +1,9 @@
+node_modules
+browser_profiles
+browser_profile
+test_profile
+*.log
+.git
+.gitignore
+.env
+tracker.db*
