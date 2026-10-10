@@ -14,14 +14,13 @@ RUN npm install --omit=dev
 # Copy application source code
 COPY . .
 
-# Ensure storage directories exist and make startup script executable
-RUN mkdir -p /app/public/screenshots /app/browser_profiles /app/data && \
-    chmod +x /app/start.sh
+# Ensure storage directories exist
+RUN mkdir -p /app/public/screenshots /app/browser_profiles /app/data
 
 ENV NODE_ENV=production
 ENV DISPLAY=:99
 
 EXPOSE 3000
 
-# Start via start.sh
-CMD ["/app/start.sh"]
+# Start Xvfb virtual display in background and execute node server
+CMD ["sh", "-c", "rm -f /tmp/.X99-lock /tmp/.X11-unix/X99; Xvfb :99 -screen 0 1280x720x24 -ac +extension GLX +render -noreset & export DISPLAY=:99; sleep 1; exec node server.js"]
