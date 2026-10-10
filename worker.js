@@ -103,19 +103,34 @@ async function checkTrackerStatus(tracker) {
 
     updateLog(`Launching browser for ${trackerType}: ${identifier}...`, true);
 
+    const proxyConfig = process.env.PROXY_SERVER ? { server: process.env.PROXY_SERVER } : undefined;
+    const launchArgs = [
+      `--disable-extensions-except=${EXTENSION_PATH}`,
+      `--load-extension=${EXTENSION_PATH}`,
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-blink-features=AutomationControlled',
+      '--window-size=1280,720'
+    ];
+    if (!proxyConfig) {
+      launchArgs.push('--no-proxy-server');
+    }
+
     context = await chromium.launchPersistentContext(jobProfileDir, {
       headless: false,
-      args: [
-        `--disable-extensions-except=${EXTENSION_PATH}`,
-        `--load-extension=${EXTENSION_PATH}`,
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-blink-features=AutomationControlled',
-        '--no-proxy-server',
-        '--window-size=1280,720'
-      ],
+      proxy: proxyConfig,
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+      args: launchArgs,
       viewport: { width: 1280, height: 720 },
-      locale: 'en-US'
+      locale: 'en-US',
+      timezoneId: 'Asia/Kolkata',
+      extraHTTPHeaders: {
+        'Accept-Language': 'en-US,en;q=0.9,hi;q=0.8',
+        'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"'
+      }
     });
 
     const pages = context.pages();
@@ -127,10 +142,11 @@ async function checkTrackerStatus(tracker) {
       captureFrame(page);
     }, 1000);
 
-    // 1. Multi-domain navigation with fast fallback
+    // 1. Multi-domain navigation with extended timeout & fallback
     let navSuccess = false;
     const targetUrls = [
       'https://myaadhaarbeta.uidai.gov.in/CheckAadhaarStatus/en',
+      'https://myaadhaar.uidai.gov.in/CheckAadhaarStatus/en',
       'https://myaadhaarbeta.uidai.gov.in/',
       'https://myaadhaar.uidai.gov.in/en_IN'
     ];
@@ -139,12 +155,20 @@ async function checkTrackerStatus(tracker) {
       for (let attempt = 1; attempt <= 2; attempt++) {
         try {
           updateLog(`Connecting to ${url} (Attempt ${attempt})...`);
-          await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
+          await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 40000 });
           navSuccess = true;
           break;
         } catch (err) {
           console.warn(`[Worker] Connection to ${url} (Attempt ${attempt}) failed: ${err.message}`);
-          await page.waitForTimeout(1000);
+          try {
+            // Fallback: wait for commit only
+            await page.goto(url, { waitUntil: 'commit', timeout: 25000 });
+            await page.waitForTimeout(3000);
+            navSuccess = true;
+            break;
+          } catch (e) {
+            await page.waitForTimeout(1500);
+          }
         }
       }
       if (navSuccess) break;
