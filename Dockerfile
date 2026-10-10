@@ -7,9 +7,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install dependencies
+# Install dependencies and matching playwright browser
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm install --omit=dev && npx playwright install chromium
 
 # Copy application source code
 COPY . .
