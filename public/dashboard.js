@@ -57,6 +57,38 @@ document.addEventListener('DOMContentLoaded', async () => {
   setInterval(pollLiveStream, 1500);
   pollLiveStream();
 
+  // Detect and display LAN access URL for mobile / other devices
+  const lanBadge = document.getElementById('lanBadge');
+  const lanUrlText = document.getElementById('lanUrlText');
+  let currentLanUrl = '';
+  try {
+    const netRes = await fetch('/api/network-info');
+    if (netRes.ok) {
+      const netData = await netRes.json();
+      if (netData.networkUrls && netData.networkUrls.length > 0) {
+        currentLanUrl = netData.networkUrls[0].url;
+        if (lanUrlText) {
+          lanUrlText.textContent = `LAN: ${netData.networkUrls[0].url.replace('http://', '')}`;
+        }
+      } else {
+        if (lanUrlText) lanUrlText.textContent = `LAN: ${window.location.host}`;
+      }
+    }
+  } catch (e) {
+    if (lanUrlText) lanUrlText.textContent = `LAN: ${window.location.host}`;
+  }
+
+  if (lanBadge) {
+    lanBadge.addEventListener('click', () => {
+      const urlToCopy = currentLanUrl || window.location.origin;
+      navigator.clipboard.writeText(urlToCopy).then(() => {
+        const orig = lanUrlText.textContent;
+        lanUrlText.textContent = 'COPIED TO CLIPBOARD!';
+        setTimeout(() => lanUrlText.textContent = orig, 1500);
+      });
+    });
+  }
+
   // Modal Actions
   const openModal = () => {
     modalError.classList.add('hidden');

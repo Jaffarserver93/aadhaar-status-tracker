@@ -11,4 +11,6 @@ public/screenshots/*
 !public/screenshots/.gitkeep
 public/*.jpg
 data/
+logs/
+aadhaar_trackers.db*
 

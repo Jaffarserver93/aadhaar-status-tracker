@@ -3,6 +3,7 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 const cron = require('node-cron');
 const path = require('path');
+const os = require('os');
 const db = require('./database');
 const { runAllTrackers, enqueueTracker, scrapeIdentifierStatus, format28DigitEid, getLatestScreenshot, getAutomationStatus } = require('./worker');
 
@@ -412,10 +413,49 @@ app.get('/:identifier', (req, res, next) => {
   res.sendFile(path.join(__dirname, 'public', 'tracker_detail.html'));
 });
 
-// Start Express Server
+// Helper to discover all non-internal IPv4 LAN IP addresses
+function getLocalIpAddresses() {
+  const interfaces = os.networkInterfaces();
+  const addresses = [];
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        if (!iface.address.startsWith('169.254.')) {
+          addresses.push({ name, address: iface.address });
+        }
+      }
+    }
+  }
+  return addresses;
+}
+
+// Network info endpoint for dashboard and clients
+app.get('/api/network-info', (req, res) => {
+  const lanIps = getLocalIpAddresses();
+  res.json({
+    port: PORT,
+    hostname: os.hostname(),
+    localUrl: `http://localhost:${PORT}`,
+    networkUrls: lanIps.map(ip => ({
+      interface: ip.name,
+      url: `http://${ip.address}:${PORT}`
+    }))
+  });
+});
+
+// Start Express Server bound to 0.0.0.0 for LAN access
 app.listen(PORT, '0.0.0.0', () => {
+  const lanIps = getLocalIpAddresses();
   console.log(`===================================================`);
   console.log(`🚀 Aadhaar Status Tracker is running on port ${PORT}`);
-  console.log(`👉 http://localhost:${PORT}`);
+  console.log(`👉 Local:    http://localhost:${PORT}`);
+  if (lanIps.length > 0) {
+    lanIps.forEach(ip => {
+      console.log(`👉 LAN / Wi-Fi: http://${ip.address}:${PORT} (${ip.name})`);
+    });
+  } else {
+    console.log(`👉 LAN / Wi-Fi: Bound to 0.0.0.0:${PORT} (All network interfaces)`);
+  }
+  console.log(`👉 API Docs: http://localhost:${PORT}/api`);
   console.log(`===================================================`);
 });

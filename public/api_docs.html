@@ -349,6 +349,13 @@ curl -s "http://localhost:3000/api/v1/scrape?identifier=S1318711695580"</pre>
         setTimeout(() => copyBtn.innerText = original, 1200);
       });
     });
+
+    // Automatically update code snippet URLs to match current host / LAN IP
+    if (window.location.origin && window.location.origin !== 'http://localhost:3000') {
+      document.querySelectorAll('pre').forEach(el => {
+        el.textContent = el.textContent.split('http://localhost:3000').join(window.location.origin);
+      });
+    }
   </script>
 </body>
 </html>
