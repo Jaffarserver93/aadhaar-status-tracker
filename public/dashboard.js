@@ -79,9 +79,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (e.target === modal) closeModal();
   });
 
-  // Type selection switching (EID vs Standard)
+  // Type selection switching (EID vs SID vs Standard)
   const trackerTypeSelect = document.getElementById('trackerType');
   const eidInputContainer = document.getElementById('eidInputContainer');
+  const sidInputContainer = document.getElementById('sidInputContainer');
+  const sidNumberInput = document.getElementById('sidNumber');
+  const sidCharCounter = document.getElementById('sidCharCounter');
   const standardInputContainer = document.getElementById('standardInputContainer');
   const trackerNumberInput = document.getElementById('trackerNumber');
   const eid14Fields = document.getElementById('eid14Fields');
@@ -91,25 +94,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     const selectedType = trackerTypeSelect.value;
     if (selectedType === 'EID') {
       eidInputContainer.classList.remove('hidden');
+      sidInputContainer.classList.add('hidden');
       standardInputContainer.classList.add('hidden');
       trackerNumberInput.removeAttribute('required');
       document.getElementById('eid14Number').focus();
+    } else if (selectedType === 'SID') {
+      eidInputContainer.classList.add('hidden');
+      sidInputContainer.classList.remove('hidden');
+      standardInputContainer.classList.add('hidden');
+      trackerNumberInput.removeAttribute('required');
+      sidNumberInput.focus();
     } else {
       eidInputContainer.classList.add('hidden');
+      sidInputContainer.classList.add('hidden');
       standardInputContainer.classList.remove('hidden');
       trackerNumberInput.setAttribute('required', 'true');
       if (selectedType === 'SRN') {
-        trackerNumberInput.placeholder = 'e.g. S1318711695580';
-      } else if (selectedType === 'URN') {
-        trackerNumberInput.placeholder = 'e.g. 12345678';
+        trackerNumberInput.placeholder = 'e.g. S1318711695580 (starts with S13 or S22)';
       } else {
-        trackerNumberInput.placeholder = 'e.g. S followed by 27 digits';
+        trackerNumberInput.placeholder = 'e.g. 12345678 (8-digit URN)';
       }
       trackerNumberInput.focus();
     }
   }
 
   trackerTypeSelect.addEventListener('change', syncTypeInputs);
+
+  // Real-time counter & format helper for SID ('S' followed by 27 digits)
+  sidNumberInput.addEventListener('input', (e) => {
+    let val = e.target.value.trim().toUpperCase().replace(/[\s\/\-_]/g, '');
+    if (val && !val.startsWith('S') && /^\d/.test(val)) {
+      val = 'S' + val;
+    }
+    sidNumberInput.value = val;
+    const len = val.length;
+    sidCharCounter.innerText = `${len} / 28 chars`;
+    if (len === 28 && val.startsWith('S')) {
+      sidCharCounter.className = 'font-mono text-[10px] text-[hsl(var(--primary))] px-1.5 py-0.5 rounded bg-[hsla(var(--primary),0.12)] border border-[hsla(var(--primary),0.3)] font-semibold';
+    } else {
+      sidCharCounter.className = 'font-mono text-[10px] text-[hsl(var(--muted-foreground))] px-1.5 py-0.5 rounded bg-[hsl(var(--secondary))] border border-[hsl(var(--border))]';
+    }
+  });
 
   // EID Mode switcher (14-digit + Date/Time vs Direct 28-digit)
   document.querySelectorAll('input[name="eidMode"]').forEach(radio => {
@@ -304,6 +329,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <span>${t.identifier_number.slice(22, 24)}:${t.identifier_number.slice(24, 26)}:${t.identifier_number.slice(26, 28)}</span>
               </span>
             </div>` : ''}
+          ${(t.type === 'SID' && (t.identifier_number || '').length === 28) ? `
+            <div class="flex items-center gap-2 text-[10px] text-[hsl(var(--muted-foreground))] font-mono mt-0.5">
+              <span class="inline-flex items-center gap-1">
+                <svg class="w-3 h-3 text-[hsl(var(--muted-foreground))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                <span>Physical Center Slip ('S' + 27 Digits)</span>
+              </span>
+            </div>` : ''}
         </div>
         
         ${t.status_details ? `<div class="text-xs text-[hsl(var(--foreground))] leading-relaxed bg-[hsl(var(--background))] p-2.5 rounded border border-[hsl(var(--border))] font-sans">${t.status_details}</div>` : ''}
@@ -438,6 +472,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         identifier_number = full28;
       }
+    } else if (type === 'SID') {
+      const sidVal = sidNumberInput.value.trim().toUpperCase().replace(/[\s\/\-_]/g, '');
+      if (!sidVal) {
+        modalError.innerText = "Please enter the SID Number ('S' followed by 27 digits).";
+        modalError.classList.remove('hidden');
+        saveBtn.disabled = false;
+        saveBtn.innerText = 'Commit to Ledger';
+        return;
+      }
+      if (sidVal.length !== 28 || !sidVal.startsWith('S')) {
+        modalError.innerText = `Invalid SID (${sidVal.length} chars). SID must be 'S' followed by 27 digits (28 characters total, printed on acknowledgment slip while physically visiting Enrolment / Update center).`;
+        modalError.classList.remove('hidden');
+        saveBtn.disabled = false;
+        saveBtn.innerText = 'Commit to Ledger';
+        return;
+      }
+      identifier_number = sidVal;
     } else {
       identifier_number = document.getElementById('trackerNumber').value.trim();
       if (!identifier_number) {

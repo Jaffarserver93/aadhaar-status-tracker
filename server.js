@@ -216,6 +216,16 @@ app.post('/api/trackers', requireAuth, (req, res) => {
       });
     }
     cleanIdentifier = digits;
+  } else if (type === 'SID') {
+    cleanIdentifier = cleanIdentifier.toUpperCase().replace(/[\s\/\-_]/g, '');
+    if (!cleanIdentifier.startsWith('S')) {
+      cleanIdentifier = 'S' + cleanIdentifier;
+    }
+    if (cleanIdentifier.length !== 28) {
+      return res.status(400).json({ 
+        error: `Invalid SID length (${cleanIdentifier.length} chars). SID must be 'S' followed by 27 digits (28 characters total, printed on physical enrolment / update center slip).` 
+      });
+    }
   }
 
   if (!cleanIdentifier) {
@@ -294,8 +304,9 @@ app.post('/api/trackers/:id/check', requireAuth, (req, res) => {
 // ====================== PUBLIC ON-DEMAND SCRAPING API ======================
 
 app.post('/api/v1/scrape', async (req, res) => {
-  const identifier = (req.body.identifier || req.body.srn || req.body.number || req.body.eid || req.body.urn || '').trim();
-  const type = req.body.type;
+  const identifier = (req.body.identifier || req.body.sid || req.body.srn || req.body.number || req.body.eid || req.body.urn || '').trim();
+  let type = req.body.type;
+  if (req.body.sid && !type) type = 'SID';
   const date = req.body.date;
   const time = req.body.time;
 
@@ -320,15 +331,16 @@ app.post('/api/v1/scrape', async (req, res) => {
 });
 
 app.get('/api/v1/scrape', async (req, res) => {
-  const identifier = (req.query.identifier || req.query.srn || req.query.number || req.query.eid || req.query.urn || '').trim();
-  const type = req.query.type;
+  const identifier = (req.query.identifier || req.query.sid || req.query.srn || req.query.number || req.query.eid || req.query.urn || '').trim();
+  let type = req.query.type;
+  if (req.query.sid && !type) type = 'SID';
   const date = req.query.date;
   const time = req.query.time;
 
   if (!identifier) {
     return res.status(400).json({
       success: false,
-      error: 'Identifier is required in query parameter (e.g. /api/v1/scrape?identifier=S1318711695580 or /api/v1/scrape?eid=08672031600941&date=2026-10-14&time=16:22:56)'
+      error: 'Identifier is required in query parameter (e.g. /api/v1/scrape?identifier=S1318711695580 or /api/v1/scrape?sid=S291463092847020260730191459)'
     });
   }
 

@@ -236,7 +236,22 @@
           </div>
         </div>
 
-        <!-- Standard Single Input (for SRN, URN, SID) -->
+        <!-- Dedicated SID Section -->
+        <div id="sidInputContainer" class="hidden space-y-2.5 p-3.5 bg-[hsl(var(--background))] border border-[hsl(var(--border))] rounded-[calc(var(--radius)-2px)]">
+          <div class="flex items-center justify-between border-b border-[hsl(var(--border))] pb-2">
+            <span class="font-mono text-[11px] text-[hsl(var(--muted-foreground))] uppercase font-medium">SID SPECIFICATION:</span>
+            <span id="sidCharCounter" class="font-mono text-[10px] text-[hsl(var(--muted-foreground))] px-1.5 py-0.5 rounded bg-[hsl(var(--secondary))] border border-[hsl(var(--border))]">0 / 28</span>
+          </div>
+          <div>
+            <label class="block font-mono text-[10px] text-[hsl(var(--muted-foreground))] uppercase mb-1">SID Number ('S' followed by 27 digits)</label>
+            <input id="sidNumber" type="text" maxlength="35" placeholder="e.g. S291463092847020260730191459" class="paper-input w-full px-3 py-2 text-sm font-mono placeholder-[hsl(var(--muted-foreground))]/50">
+          </div>
+          <p class="font-mono text-[10px] text-[hsl(var(--muted-foreground))] leading-tight">
+            'S' followed by 27 digits, printed on acknowledgement slip while physically visiting Enrolment / Update center.
+          </p>
+        </div>
+
+        <!-- Standard Single Input (for SRN, URN) -->
         <div id="standardInputContainer" class="hidden">
           <label id="trackerNumberLabel" class="block font-mono text-[11px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider mb-1.5">Identifier Reference Number</label>
           <input id="trackerNumber" type="text" placeholder="e.g. S1318711695580" class="paper-input w-full px-3.5 py-2 text-sm font-mono placeholder-[hsl(var(--muted-foreground))]/50">

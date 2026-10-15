@@ -276,6 +276,17 @@ async function scrapeIdentifierStatus({ identifier, type, date, time }) {
     }
   }
 
+  // Ensure SID is normalized: uppercase 'S' followed by 27 digits (28 characters)
+  if (trackerType === 'SID') {
+    cleanId = cleanId.toUpperCase().replace(/[\s\/\-_]/g, '');
+    if (!cleanId.startsWith('S')) {
+      cleanId = 'S' + cleanId;
+    }
+    if (cleanId.length !== 28) {
+      throw new Error(`Invalid SID format (${cleanId.length} characters). SID must start with 'S' followed by 27 digits (28 characters total, printed on physical enrolment / update center slip).`);
+    }
+  }
+
   const startTime = Date.now();
   const MAX_RETRIES = 5;
   let finalApiResult = null;

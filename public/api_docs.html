@@ -64,16 +64,17 @@
           </svg>
           <h2 class="font-serif text-base font-normal text-[hsl(var(--card-foreground))]">Interactive Query Console</h2>
         </div>
-        <div class="flex items-center gap-2 text-xs font-mono">
+        <div class="flex items-center gap-2 text-xs font-mono flex-wrap">
           <button id="modeSrnBtn" class="btn-primary px-3 py-1 text-xs">SRN / URN</button>
+          <button id="modeSidBtn" class="btn-secondary px-3 py-1 text-xs">SID (S + 27 Digits)</button>
           <button id="modeEid14Btn" class="btn-secondary px-3 py-1 text-xs">EID (14-Digit + Date/Time)</button>
           <button id="modeEid28Btn" class="btn-secondary px-3 py-1 text-xs">EID (28-Digit)</button>
         </div>
       </div>
 
-      <!-- Single ID Mode (SRN, URN, SID) -->
+      <!-- Single ID Mode (SRN, URN) -->
       <div id="boxSrn" class="space-y-2">
-        <label class="block font-mono text-[10px] text-[hsl(var(--muted-foreground))] uppercase tracking-wider">Reference Identifier (SRN / URN / SID)</label>
+        <label class="block font-mono text-[10px] text-[hsl(var(--muted-foreground))] uppercase tracking-wider">Reference Identifier (SRN / URN)</label>
         <div class="flex flex-col sm:flex-row gap-2.5">
           <input id="testInput" type="text" value="S1318711695580" placeholder="Enter SRN / URN..." class="paper-input flex-1 px-3.5 py-2 font-mono text-sm">
           <button id="sendTestBtn" class="btn-primary px-4 py-2 text-xs font-mono uppercase tracking-wide flex items-center justify-center gap-2 shrink-0">
@@ -81,6 +82,22 @@
             <span>Execute Call</span>
           </button>
         </div>
+      </div>
+
+      <!-- Dedicated SID Mode (S + 27 Digits) -->
+      <div id="boxSid" class="hidden space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="block font-mono text-[10px] text-[hsl(var(--muted-foreground))] uppercase tracking-wider">SID Number ('S' followed by 27 digits)</label>
+          <span class="font-mono text-[10px] text-[hsl(var(--muted-foreground))]">Enrolment / Update Center Slip</span>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <input id="testSidInput" type="text" value="S291463092847020260730191459" placeholder="e.g. S291463092847020260730191459" class="paper-input flex-1 px-3.5 py-2 font-mono text-sm">
+          <button id="sendSidTestBtn" class="btn-primary px-4 py-2 text-xs font-mono uppercase tracking-wide flex items-center justify-center gap-2 shrink-0">
+            <span id="testSidSpinner" class="hidden w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <span>Execute SID Call</span>
+          </button>
+        </div>
+        <p class="font-mono text-[10px] text-[hsl(var(--muted-foreground))]">'S' followed by 27 digits, printed on acknowledgement slip while physically visiting Enrolment / Update center.</p>
       </div>
 
       <!-- EID 14-Digit + Date/Time Mode -->
@@ -154,6 +171,12 @@
   "time": "16:22:56"
 }</pre>
           </div>
+          <div class="md:col-span-2">
+            <h4 class="font-mono text-[10px] text-[hsl(var(--muted-foreground))] uppercase tracking-wider mb-1.5">Option C: SID Number ('S' followed by 27 digits)</h4>
+            <pre class="p-3 bg-[hsl(var(--sidebar))] text-[hsl(var(--sidebar-primary))] border border-[hsl(var(--sidebar-border))] rounded text-xs font-mono">{
+  "sid": "S291463092847020260730191459"
+}</pre>
+          </div>
         </div>
 
         <div>
@@ -164,13 +187,18 @@
         </div>
 
         <div>
+          <h4 class="font-mono text-[10px] text-[hsl(var(--muted-foreground))] uppercase tracking-wider mb-1.5">cURL Example (SID Number)</h4>
+          <pre class="p-3 bg-[hsl(var(--sidebar))] text-[hsl(var(--sidebar-foreground))] border border-[hsl(var(--sidebar-border))] rounded text-xs font-mono overflow-x-auto">curl -X POST http://localhost:3000/api/v1/scrape \
+  -H "Content-Type: application/json" \
+  -d '{"sid":"S291463092847020260730191459"}'</pre>
+        </div>
+
+        <div>
           <h4 class="font-mono text-[10px] text-[hsl(var(--muted-foreground))] uppercase tracking-wider mb-1.5">Python (requests) Example</h4>
           <pre class="p-3 bg-[hsl(var(--sidebar))] text-[hsl(var(--sidebar-foreground))] border border-[hsl(var(--sidebar-border))] rounded text-xs font-mono overflow-x-auto">import requests
 
 res = requests.post("http://localhost:3000/api/v1/scrape", json={
-    "eid": "08672031600941",
-    "date": "2026-10-14",
-    "time": "16:22:56"
+    "sid": "S291463092847020260730191459"
 })
 data = res.json()
 print("Status:", data["status"])
@@ -197,7 +225,10 @@ curl -s "http://localhost:3000/api/v1/scrape?identifier=086720316009412026101416
 # 2. 14-digit EID with date and time:
 curl -s "http://localhost:3000/api/v1/scrape?eid=08672031600941&date=2026-10-14&time=16:22:56"
 
-# 3. SRN check:
+# 3. SID check (Physical center slip):
+curl -s "http://localhost:3000/api/v1/scrape?sid=S291463092847020260730191459"
+
+# 4. SRN check:
 curl -s "http://localhost:3000/api/v1/scrape?identifier=S1318711695580"</pre>
         </div>
       </div>
@@ -208,42 +239,29 @@ curl -s "http://localhost:3000/api/v1/scrape?identifier=S1318711695580"</pre>
 
   <script>
     const modeSrnBtn = document.getElementById('modeSrnBtn');
+    const modeSidBtn = document.getElementById('modeSidBtn');
     const modeEid14Btn = document.getElementById('modeEid14Btn');
     const modeEid28Btn = document.getElementById('modeEid28Btn');
 
     const boxSrn = document.getElementById('boxSrn');
+    const boxSid = document.getElementById('boxSid');
     const boxEid14 = document.getElementById('boxEid14');
     const boxEid28 = document.getElementById('boxEid28');
 
     const activeTabClass = 'btn-primary px-3 py-1 text-xs';
     const inactiveTabClass = 'btn-secondary px-3 py-1 text-xs';
 
-    modeSrnBtn.addEventListener('click', () => {
-      modeSrnBtn.className = activeTabClass;
-      modeEid14Btn.className = inactiveTabClass;
-      modeEid28Btn.className = inactiveTabClass;
-      boxSrn.classList.remove('hidden');
-      boxEid14.classList.add('hidden');
-      boxEid28.classList.add('hidden');
-    });
+    function setTab(activeBtn, activeBox) {
+      [modeSrnBtn, modeSidBtn, modeEid14Btn, modeEid28Btn].forEach(b => b.className = inactiveTabClass);
+      [boxSrn, boxSid, boxEid14, boxEid28].forEach(box => box.classList.add('hidden'));
+      activeBtn.className = activeTabClass;
+      activeBox.classList.remove('hidden');
+    }
 
-    modeEid14Btn.addEventListener('click', () => {
-      modeEid14Btn.className = activeTabClass;
-      modeSrnBtn.className = inactiveTabClass;
-      modeEid28Btn.className = inactiveTabClass;
-      boxEid14.classList.remove('hidden');
-      boxSrn.classList.add('hidden');
-      boxEid28.classList.add('hidden');
-    });
-
-    modeEid28Btn.addEventListener('click', () => {
-      modeEid28Btn.className = activeTabClass;
-      modeSrnBtn.className = inactiveTabClass;
-      modeEid14Btn.className = inactiveTabClass;
-      boxEid28.classList.remove('hidden');
-      boxSrn.classList.add('hidden');
-      boxEid14.classList.add('hidden');
-    });
+    modeSrnBtn.addEventListener('click', () => setTab(modeSrnBtn, boxSrn));
+    modeSidBtn.addEventListener('click', () => setTab(modeSidBtn, boxSid));
+    modeEid14Btn.addEventListener('click', () => setTab(modeEid14Btn, boxEid14));
+    modeEid28Btn.addEventListener('click', () => setTab(modeEid28Btn, boxEid28));
 
     const resultBox = document.getElementById('testResultBox');
     const resultPre = document.getElementById('testResultPre');
@@ -285,6 +303,16 @@ curl -s "http://localhost:3000/api/v1/scrape?identifier=S1318711695580"</pre>
         { identifier: id },
         document.getElementById('testSpinner'),
         document.getElementById('sendTestBtn')
+      );
+    });
+
+    document.getElementById('sendSidTestBtn').addEventListener('click', () => {
+      const sid = document.getElementById('testSidInput').value.trim();
+      if (!sid) return;
+      executeApiCall(
+        { sid, type: 'SID' },
+        document.getElementById('testSidSpinner'),
+        document.getElementById('sendSidTestBtn')
       );
     });
 
