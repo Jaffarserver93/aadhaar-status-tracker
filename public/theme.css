@@ -1,0 +1,195 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap');
+
+:root {
+  --background: 42 34% 95%;
+  --foreground: 214 22% 16%;
+  --border: 37 18% 84%;
+  --input: 38 17% 82%;
+  --ring: 164 27% 37%;
+
+  --card: 42 37% 98%;
+  --card-foreground: 214 22% 16%;
+  --card-border: 39 24% 87%;
+  --popover: 42 37% 98%;
+  --popover-foreground: 214 22% 16%;
+  --popover-border: 39 24% 87%;
+
+  --primary: 164 28% 31%;
+  --primary-foreground: 42 37% 98%;
+  --secondary: 39 28% 89%;
+  --secondary-foreground: 214 22% 20%;
+  --muted: 40 20% 91%;
+  --muted-foreground: 213 11% 46%;
+  --accent: 16 47% 60%;
+  --accent-foreground: 214 22% 16%;
+  --destructive: 2 54% 48%;
+  --destructive-foreground: 42 37% 98%;
+
+  --sidebar: 214 23% 17%;
+  --sidebar-foreground: 42 30% 93%;
+  --sidebar-border: 215 17% 27%;
+  --sidebar-primary: 164 36% 54%;
+  --sidebar-primary-foreground: 214 23% 17%;
+  --sidebar-accent: 215 17% 24%;
+  --sidebar-accent-foreground: 42 30% 93%;
+  --sidebar-ring: 164 36% 54%;
+
+  --chart-1: 164 28% 31%;
+  --chart-2: 16 47% 60%;
+  --chart-3: 213 27% 39%;
+  --chart-4: 39 57% 62%;
+  --chart-5: 179 19% 53%;
+
+  --app-font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --app-font-serif: 'Newsreader', Georgia, Cambria, "Times New Roman", Times, serif;
+  --app-font-mono: 'DM Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --radius: 0.7rem;
+}
+
+.dark {
+  --background: 214 23% 17%;
+  --foreground: 42 30% 93%;
+  --border: 215 17% 27%;
+  --input: 215 17% 31%;
+  --ring: 164 36% 54%;
+
+  --card: 214 21% 20%;
+  --card-foreground: 42 30% 93%;
+  --card-border: 215 17% 27%;
+  --popover: 214 21% 20%;
+  --popover-foreground: 42 30% 93%;
+  --popover-border: 215 17% 27%;
+
+  --primary: 164 36% 54%;
+  --primary-foreground: 214 23% 17%;
+  --secondary: 215 17% 24%;
+  --secondary-foreground: 42 30% 93%;
+  --muted: 215 17% 24%;
+  --muted-foreground: 214 12% 68%;
+  --accent: 16 47% 60%;
+  --accent-foreground: 214 23% 17%;
+  --destructive: 2 54% 55%;
+  --destructive-foreground: 42 30% 93%;
+
+  --sidebar: 214 23% 17%;
+  --sidebar-foreground: 42 30% 93%;
+  --sidebar-border: 215 17% 27%;
+  --sidebar-primary: 164 36% 54%;
+  --sidebar-primary-foreground: 214 23% 17%;
+  --sidebar-accent: 215 17% 24%;
+  --sidebar-accent-foreground: 42 30% 93%;
+  --sidebar-ring: 164 36% 54%;
+
+  --chart-1: 164 36% 54%;
+  --chart-2: 16 47% 60%;
+  --chart-3: 213 27% 60%;
+  --chart-4: 39 57% 62%;
+  --chart-5: 179 19% 53%;
+}
+
+/* Base resets & typography */
+html, body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: var(--app-font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-serif {
+  font-family: var(--app-font-serif);
+}
+
+.font-sans {
+  font-family: var(--app-font-sans);
+}
+
+.font-mono {
+  font-family: var(--app-font-mono);
+}
+
+/* Archival Dotted Brand Rail Texture */
+.archival-dotted-rail {
+  background-color: hsl(var(--sidebar));
+  background-image: radial-gradient(rgba(240, 235, 225, 0.12) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Warm Paper Card */
+.paper-card {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border: 1px solid hsl(var(--card-border));
+  border-radius: var(--radius);
+  box-shadow: 0 1px 3px rgba(30, 41, 59, 0.03);
+}
+
+/* Archival Input */
+.paper-input {
+  background-color: hsl(var(--card));
+  color: hsl(var(--foreground));
+  border: 1px solid hsl(var(--input));
+  border-radius: calc(var(--radius) - 2px);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.paper-input:focus {
+  outline: none;
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 2px hsla(var(--ring), 0.2);
+}
+
+/* Evergreen Action Button */
+.btn-primary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-radius: calc(var(--radius) - 2px);
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background-color: hsl(var(--muted));
+}
+
+/* Terracotta Accent Tag / Alert */
+.badge-terracotta {
+  background-color: hsla(var(--accent), 0.15);
+  color: hsl(16 55% 42%);
+  border: 1px solid hsla(var(--accent), 0.3);
+}
+
+/* Subtle Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--input));
+}

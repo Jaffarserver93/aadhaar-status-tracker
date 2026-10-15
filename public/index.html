@@ -3,46 +3,161 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aadhaar & Govt Status Tracker - Sign In</title>
+  <title>Aadhaar Status Registry - Sign In</title>
+  <link rel="stylesheet" href="/theme.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Manrope', 'sans-serif'],
+            serif: ['Newsreader', 'Georgia', 'serif'],
+            mono: ['DM Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex flex-col md:flex-row bg-[hsl(var(--background))] text-[hsl(var(--foreground))] selection:bg-[hsla(var(--primary),0.2)]">
 
-  <div class="max-w-md w-full bg-slate-800/90 border border-slate-700/80 backdrop-blur rounded-2xl p-8 shadow-2xl">
-    <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center w-14 h-14 bg-indigo-600 rounded-2xl mb-3 shadow-lg shadow-indigo-500/30">
-        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+  <!-- Left-Side Dark Brand Rail (Fieldnotes Archival Aesthetic) -->
+  <aside class="w-full md:w-5/12 lg:w-4/12 xl:w-96 archival-dotted-rail text-[hsl(var(--sidebar-foreground))] p-8 md:p-12 flex flex-col justify-between border-b md:border-b-0 md:border-r border-[hsl(var(--sidebar-border))] shrink-0">
+    <div>
+      <!-- Line-Art Security Emblem -->
+      <div class="mb-8">
+        <svg class="w-12 h-12 text-[hsl(var(--sidebar-primary))]" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Outer Archival Shield -->
+          <path d="M24 4L8 10V22C8 32.5 14.8 42.2 24 45C33.2 42.2 40 32.5 40 22V10L24 4Z" />
+          <!-- Inner Precision Grid -->
+          <circle cx="24" cy="24" r="9" stroke-dasharray="2 2" />
+          <path d="M24 18V30M18 24H30" />
+          <!-- Corner Register Marks -->
+          <path d="M12 14V17M12 14H15" />
+          <path d="M36 14V17M36 14H33" />
         </svg>
       </div>
-      <h2 class="text-2xl font-bold tracking-tight text-white">Status Tracker</h2>
-      <p class="text-sm text-slate-400 mt-1">Automated UIDAI & Govt Application Monitoring</p>
-    </div>
 
-    <!-- Alert Box -->
-    <div id="alertBox" class="hidden mb-4 p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-sm rounded-xl"></div>
-
-    <!-- Auth Form -->
-    <form id="authForm" class="space-y-4">
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Username</label>
-        <input id="username" type="text" required autocomplete="username" class="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder-slate-500 text-sm" placeholder="Enter username">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Password</label>
-        <input id="password" type="password" required autocomplete="current-password" class="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all placeholder-slate-500 text-sm" placeholder="Min 6 characters">
-      </div>
+      <!-- Generous Serif Headline -->
+      <h1 class="font-serif text-3xl lg:text-4xl font-normal tracking-tight text-[hsl(var(--sidebar-foreground))] leading-tight mb-4">
+        Aadhaar Registry & Fieldnotes
+      </h1>
       
-      <button type="submit" id="submitBtn" class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition-all text-white text-sm">
-        Sign In
-      </button>
-    </form>
+      <p class="font-sans text-xs lg:text-sm text-[hsl(var(--muted-foreground))] leading-relaxed mb-6 font-normal">
+        Archival workspace for continuous monitoring of government application dossiers, enrolment pipelines, and update requests.
+      </p>
 
-    <div class="mt-6 text-center text-sm text-slate-400">
-      <span id="togglePrompt">Don't have an account?</span>
-      <button type="button" id="toggleModeBtn" class="text-indigo-400 hover:text-indigo-300 underline font-medium ml-1">Create an account</button>
+      <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-[hsl(var(--sidebar-accent))] border border-[hsl(var(--sidebar-border))] text-[11px] font-mono text-[hsl(var(--sidebar-primary))]">
+        <span class="w-1.5 h-1.5 rounded-full bg-[hsl(var(--sidebar-primary))]"></span>
+        <span>DIRECT API REVERSE SCRAPER</span>
+      </div>
     </div>
-  </div>
+
+    <!-- Archival Rail Metadata Footnote -->
+    <div class="mt-8 pt-8 border-t border-[hsl(var(--sidebar-border))] text-[11px] font-mono text-[hsl(var(--muted-foreground))] space-y-1.5">
+      <div class="flex justify-between">
+        <span class="text-[hsl(var(--sidebar-border))] uppercase">Ledger Node</span>
+        <span class="text-[hsl(var(--sidebar-foreground))]">UIDAI-TATHYA-01</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-[hsl(var(--sidebar-border))] uppercase">Verification</span>
+        <span class="text-[hsl(var(--sidebar-primary))]">Neural OCR Active</span>
+      </div>
+      <div class="flex justify-between">
+        <span class="text-[hsl(var(--sidebar-border))] uppercase">Environment</span>
+        <span>Local / Encrypted</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Right-Side Warm Ivory Form Container -->
+  <main class="flex-1 flex items-center justify-center p-6 sm:p-10 lg:p-16 bg-[hsl(var(--background))]">
+    <div class="w-full max-w-md space-y-8">
+      
+      <!-- Form Header -->
+      <div class="space-y-2">
+        <div class="font-mono text-[11px] tracking-wider uppercase text-[hsl(var(--muted-foreground))] font-medium flex items-center gap-2">
+          <span>//</span>
+          <span id="headerTag">WORKSPACE ACCESS</span>
+        </div>
+        <h2 id="pageTitle" class="font-serif text-2xl sm:text-3xl text-[hsl(var(--foreground))] font-normal tracking-tight">
+          Sign In
+        </h2>
+        <p id="pageSubtitle" class="font-sans text-xs sm:text-sm text-[hsl(var(--muted-foreground))] leading-relaxed">
+          Enter your operator credentials to access the tracking pipelines.
+        </p>
+      </div>
+
+      <!-- Alert Box -->
+      <div id="alertBox" class="hidden p-3.5 bg-[hsla(var(--accent),0.12)] border border-[hsla(var(--accent),0.35)] text-[hsl(16,60%,36%)] text-xs font-mono rounded-[calc(var(--radius)-2px)]"></div>
+
+      <!-- Auth Form -->
+      <form id="authForm" class="space-y-5">
+        <div class="space-y-1.5">
+          <label class="block font-mono text-[11px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+            Operator Identifier / Username
+          </label>
+          <input 
+            id="username" 
+            type="text" 
+            required 
+            autocomplete="username" 
+            class="paper-input w-full px-3.5 py-2.5 text-sm font-sans placeholder-[hsl(var(--muted-foreground))]/60 transition-colors" 
+            placeholder="e.g. jaffar"
+          >
+        </div>
+
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center">
+            <label class="block font-mono text-[11px] font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+              Secret Passphrase / Password
+            </label>
+            <span class="font-mono text-[10px] text-[hsl(var(--muted-foreground))]">MIN 6 CHARACTERS</span>
+          </div>
+          <input 
+            id="password" 
+            type="password" 
+            required 
+            autocomplete="current-password" 
+            class="paper-input w-full px-3.5 py-2.5 text-sm font-sans placeholder-[hsl(var(--muted-foreground))]/60 transition-colors" 
+            placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+          >
+        </div>
+        
+        <button 
+          type="submit" 
+          id="submitBtn" 
+          class="btn-primary w-full py-2.5 px-4 text-xs sm:text-sm font-sans tracking-wide uppercase shadow-sm flex items-center justify-center gap-2 mt-2"
+        >
+          <span>Authenticate & Open Ledger</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </button>
+      </form>
+
+      <!-- Toggle Mode Prompt -->
+      <div class="pt-4 border-t border-[hsl(var(--border))] flex items-center justify-between text-xs">
+        <span id="togglePrompt" class="text-[hsl(var(--muted-foreground))] font-sans">Need an archival workspace?</span>
+        <button 
+          type="button" 
+          id="toggleModeBtn" 
+          class="font-mono text-xs text-[hsl(var(--primary))] hover:text-[hsl(var(--ring))] font-medium underline underline-offset-4 transition-colors"
+        >
+          Create New Account
+        </button>
+      </div>
+
+      <!-- Archival Notice -->
+      <div class="pt-2 text-center">
+        <p class="font-mono text-[10px] text-[hsl(var(--muted-foreground))]/80 uppercase tracking-widest">
+          Fieldnotes Archival System &bull; Private Workspace
+        </p>
+      </div>
+
+    </div>
+  </main>
 
   <script>
     let isRegisterMode = false;
@@ -51,6 +166,9 @@
     const submitBtn = document.getElementById('submitBtn');
     const togglePrompt = document.getElementById('togglePrompt');
     const alertBox = document.getElementById('alertBox');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageSubtitle = document.getElementById('pageSubtitle');
+    const headerTag = document.getElementById('headerTag');
 
     // Check if session exists
     fetch('/api/me')
@@ -62,9 +180,14 @@
 
     toggleBtn.addEventListener('click', () => {
       isRegisterMode = !isRegisterMode;
-      submitBtn.innerText = isRegisterMode ? 'Register Account' : 'Sign In';
-      togglePrompt.innerText = isRegisterMode ? 'Already have an account?' : "Don't have an account?";
-      toggleBtn.innerText = isRegisterMode ? 'Sign In' : 'Create an account';
+      pageTitle.innerText = isRegisterMode ? 'Create Account' : 'Sign In';
+      pageSubtitle.innerText = isRegisterMode 
+        ? 'Register a new operator profile for tracking government application dossiers.'
+        : 'Enter your operator credentials to access the tracking pipelines.';
+      headerTag.innerText = isRegisterMode ? 'REGISTRATION' : 'WORKSPACE ACCESS';
+      submitBtn.querySelector('span').innerText = isRegisterMode ? 'Register Operator Account' : 'Authenticate & Open Ledger';
+      togglePrompt.innerText = isRegisterMode ? 'Already have an archival account?' : 'Need an archival workspace?';
+      toggleBtn.innerText = isRegisterMode ? 'Sign In to Existing' : 'Create New Account';
       alertBox.classList.add('hidden');
     });
 
