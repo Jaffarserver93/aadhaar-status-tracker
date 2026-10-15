@@ -7,7 +7,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       window.location.href = '/';
       return;
     }
-    document.getElementById('userBadge').innerText = `👤 ${meData.username}`;
+    document.getElementById('userBadge').innerHTML = `
+      <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+      </svg>
+      <span>${meData.username}</span>
+    `;
   } catch {
     window.location.href = '/';
     return;
@@ -194,11 +199,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       let statusBadge = '';
       if (status === 'Processing') {
-        statusBadge = '<span class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> In Progress</span>';
+        statusBadge = `
+          <span class="inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <svg class="w-3 h-3 animate-spin text-amber-400" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>In Progress</span>
+          </span>
+        `;
       } else if (status === 'Completed') {
-        statusBadge = '<span class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">✓ Completed</span>';
+        statusBadge = `
+          <span class="inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>Completed</span>
+          </span>
+        `;
       } else {
-        statusBadge = '<span class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20">⚠ Action Needed</span>';
+        statusBadge = `
+          <span class="inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20">
+            <svg class="w-3 h-3 text-rose-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <span>Action Needed</span>
+          </span>
+        `;
       }
 
       let parsedJson = null;
@@ -215,8 +242,12 @@ document.addEventListener('DOMContentLoaded', async () => {
               const isDone = s.state === 'COMPLETE';
               const isCurr = s.state === 'INPROGRESS';
               const bg = isDone ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : (isCurr ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-slate-850 text-slate-500 border-slate-800');
-              const icon = isDone ? '✓' : (isCurr ? '⟳' : '○');
-              return `<span class="text-[9px] px-1.5 py-0.5 rounded border font-mono ${bg}">${s.stageName} ${icon}</span>`;
+              const icon = isDone 
+                ? '<svg class="w-2.5 h-2.5 inline text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>' 
+                : (isCurr 
+                  ? '<svg class="w-2.5 h-2.5 inline animate-spin text-amber-400" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>'
+                  : '<span class="inline-block w-1.5 h-1.5 rounded-full bg-slate-600"></span>');
+              return `<span class="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded border font-mono ${bg}">${s.stageName} ${icon}</span>`;
             }).join('')}
           </div>
         `;
@@ -231,17 +262,44 @@ document.addEventListener('DOMContentLoaded', async () => {
             ${statusBadge}
           </div>
           <div class="flex items-center gap-1.5">
-            <button class="check-now-btn text-slate-400 hover:text-indigo-300 text-xs p-1 transition-colors" title="Check Now via API" data-id="${t.id}">🔄</button>
-            <button class="delete-btn text-slate-400 hover:text-rose-400 text-xs p-1 transition-colors" title="Delete" data-id="${t.id}">&times;</button>
+            <button class="check-now-btn text-slate-400 hover:text-indigo-300 p-1 rounded-md hover:bg-slate-700/50 transition-all group" title="Check Now via API" data-id="${t.id}">
+              <svg class="w-3.5 h-3.5 transition-transform group-hover:rotate-180 duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+            </button>
+            <button class="delete-btn text-slate-400 hover:text-rose-400 p-1 rounded-md hover:bg-rose-500/10 transition-all group" title="Delete" data-id="${t.id}">
+              <svg class="w-3.5 h-3.5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
           </div>
         </div>
 
         <div>
-          <a href="/${encodeURIComponent(t.identifier_number)}" class="font-mono text-sm font-bold text-indigo-300 hover:text-indigo-200 tracking-wider hover:underline flex items-center justify-between">
+          <a href="/${encodeURIComponent(t.identifier_number)}" class="font-mono text-sm font-bold text-indigo-300 hover:text-indigo-200 tracking-wider hover:underline flex items-center justify-between group">
             <span>${(t.type === 'EID' && (t.identifier_number || '').length === 28) ? `${t.identifier_number.slice(0, 4)}/${t.identifier_number.slice(4, 9)}/${t.identifier_number.slice(9, 14)}` : t.identifier_number}</span>
-            <span class="text-xs text-slate-500 font-sans font-normal">Details &rarr;</span>
+            <span class="text-xs text-slate-500 font-sans font-normal flex items-center gap-1 group-hover:text-indigo-300 transition-colors">
+              <span>Details</span>
+              <svg class="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </span>
           </a>
-          ${(t.type === 'EID' && (t.identifier_number || '').length === 28) ? `<div class="text-[11px] text-indigo-300/80 font-mono mt-0.5">📅 ${t.identifier_number.slice(20, 22)}/${t.identifier_number.slice(18, 20)}/${t.identifier_number.slice(14, 18)} &nbsp;⏰ ${t.identifier_number.slice(22, 24)}:${t.identifier_number.slice(24, 26)}:${t.identifier_number.slice(26, 28)}</div>` : ''}
+          ${(t.type === 'EID' && (t.identifier_number || '').length === 28) ? `
+            <div class="flex items-center gap-3 text-[11px] text-indigo-300/80 font-mono mt-0.5">
+              <span class="inline-flex items-center gap-1">
+                <svg class="w-3 h-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span>${t.identifier_number.slice(20, 22)}/${t.identifier_number.slice(18, 20)}/${t.identifier_number.slice(14, 18)}</span>
+              </span>
+              <span class="inline-flex items-center gap-1">
+                <svg class="w-3 h-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>${t.identifier_number.slice(22, 24)}:${t.identifier_number.slice(24, 26)}:${t.identifier_number.slice(26, 28)}</span>
+              </span>
+            </div>` : ''}
         </div>
         
         ${t.status_details ? `<div class="text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">${t.status_details}</div>` : ''}
@@ -250,12 +308,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         <div class="bg-slate-900/80 border border-slate-800 rounded-lg p-2.5 mt-1">
           <div class="flex items-center justify-between">
-            <button type="button" class="toggle-json-btn text-[11px] font-mono font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors">
-              <span>{ }</span>
+            <button type="button" class="toggle-json-btn text-[11px] font-mono font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1.5 transition-colors">
+              <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+              </svg>
               <span>API JSON Response</span>
-              <span class="json-arrow text-[9px]">▼</span>
+              <svg class="json-arrow w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7 7"/>
+              </svg>
             </button>
-            <button type="button" class="copy-json-btn text-[10px] text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 font-mono transition-colors">Copy</button>
+            <button type="button" class="copy-json-btn text-[10px] text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 font-mono transition-colors flex items-center gap-1">
+              <svg class="copy-icon w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+              <span class="copy-text">Copy</span>
+            </button>
           </div>
           <pre class="json-pre hidden mt-2 p-2 bg-slate-950 border border-slate-800 rounded text-[10px] font-mono text-emerald-400 overflow-x-auto max-h-36 scrollbar-thin whitespace-pre leading-tight select-all">${prettyJson}</pre>
         </div>
@@ -272,16 +339,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       const jsonArrow = card.querySelector('.json-arrow');
       toggleBtn.addEventListener('click', () => {
         jsonPre.classList.toggle('hidden');
-        jsonArrow.innerText = jsonPre.classList.contains('hidden') ? '▼' : '▲';
+        jsonArrow.classList.toggle('rotate-180');
       });
 
       // Event listener for Copy JSON
       const copyBtn = card.querySelector('.copy-json-btn');
       copyBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(prettyJson).then(() => {
-          const original = copyBtn.innerText;
-          copyBtn.innerText = 'Copied!';
-          setTimeout(() => copyBtn.innerText = original, 1200);
+          const copyText = copyBtn.querySelector('.copy-text');
+          const original = copyText.innerText;
+          copyText.innerText = 'Copied!';
+          setTimeout(() => copyText.innerText = original, 1200);
         });
       });
 
