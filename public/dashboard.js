@@ -24,49 +24,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   const refreshIcon = document.getElementById('refreshIcon');
   const modalError = document.getElementById('modalError');
 
-  // Live Stream Elements
-  const toggleLiveBtn = document.getElementById('toggleLiveViewBtn');
-  const liveContainer = document.getElementById('liveViewContainer');
-  const liveImg = document.getElementById('liveBrowserImage');
+  // Live Engine Elements
   const liveStatusText = document.getElementById('liveStatusText');
   const livePulse = document.getElementById('livePulse');
 
-  let liveStreamEnabled = true;
-
-  toggleLiveBtn.addEventListener('click', () => {
-    liveStreamEnabled = !liveStreamEnabled;
-    liveContainer.classList.toggle('hidden', !liveStreamEnabled);
-    toggleLiveBtn.classList.toggle('bg-indigo-600', liveStreamEnabled);
-    toggleLiveBtn.classList.toggle('text-white', liveStreamEnabled);
-  });
-
-  // Fetch live screenshot and status every 1 second
+  // Fetch live API engine status every 1.5 seconds
   async function pollLiveStream() {
-    if (!liveStreamEnabled) return;
     try {
-      // 1. Update Screenshot with cache-busting timestamp
-      const timestamp = Date.now();
-      liveImg.src = `/api/debug/screenshot?t=${timestamp}`;
-
-      // 2. Fetch current automation log and active state
       const statusRes = await fetch('/api/debug/status');
       if (statusRes.ok) {
         const statusData = await statusRes.json();
-        liveStatusText.innerText = statusData.message || 'Idle';
+        if (liveStatusText) liveStatusText.innerText = statusData.message || 'Idle';
         
-        if (statusData.active) {
-          livePulse.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
-        } else {
-          livePulse.className = 'w-2 h-2 rounded-full bg-slate-500';
+        if (livePulse) {
+          if (statusData.active) {
+            livePulse.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse';
+          } else {
+            livePulse.className = 'w-2.5 h-2.5 rounded-full bg-slate-500';
+          }
         }
       }
     } catch (e) {
-      // Ignore transient polling network drops
+      // Ignore transient polling drops
     }
   }
 
-  // Poll live browser stream every 1000ms (1 second)
-  setInterval(pollLiveStream, 1000);
+  setInterval(pollLiveStream, 1500);
   pollLiveStream();
 
   // Modal Actions
@@ -170,14 +153,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         statusBadge = '<span class="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-400 border border-rose-500/20">⚠ Action Needed</span>';
       }
 
-      const screenshotPreviewHtml = t.latest_screenshot 
-        ? `<a href="/${encodeURIComponent(t.identifier_number)}" class="block relative rounded-lg overflow-hidden border border-slate-700 group hover:border-indigo-500 transition-all">
-             <img src="${t.latest_screenshot}" alt="Result Screenshot" class="w-full h-24 object-cover object-top group-hover:scale-105 transition-transform duration-300">
-             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-2">
-               <span class="text-[10px] text-indigo-300 font-semibold flex items-center gap-1">📸 Click to View Details & History ↗</span>
-             </div>
-           </a>`
-        : '';
+      let parsedJson = null;
+      try {
+        parsedJson = typeof t.json_data === 'string' ? JSON.parse(t.json_data) : t.json_data;
+      } catch (e) {}
+
+      let stagesHtml = '';
+      if (parsedJson && parsedJson.statusData && parsedJson.statusData[0]?.stages) {
+        const stages = parsedJson.statusData[0].stages;
+        stagesHtml = `
+          <div class="flex flex-wrap gap-1 mt-1">
+            ${stages.map(s => {
+              const isDone = s.state === 'COMPLETE';
+              const isCurr = s.state === 'INPROGRESS';
+              const bg = isDone ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : (isCurr ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-slate-850 text-slate-500 border-slate-800');
+              const icon = isDone ? '✓' : (isCurr ? '⟳' : '○');
+              return `<span class="text-[9px] px-1.5 py-0.5 rounded border font-mono ${bg}">${s.stageName} ${icon}</span>`;
+            }).join('')}
+          </div>
+        `;
+      }
+
+      const prettyJson = parsedJson ? JSON.stringify(parsedJson, null, 2) : (t.status_details ? JSON.stringify({ message: t.status_details }, null, 2) : '{}');
 
       card.innerHTML = `
         <div class="flex items-center justify-between">
@@ -186,25 +183,56 @@ document.addEventListener('DOMContentLoaded', async () => {
             ${statusBadge}
           </div>
           <div class="flex items-center gap-1.5">
-            <button class="check-now-btn text-slate-400 hover:text-indigo-300 text-xs p-1 transition-colors" title="Check Now" data-id="${t.id}">🔄</button>
+            <button class="check-now-btn text-slate-400 hover:text-indigo-300 text-xs p-1 transition-colors" title="Check Now via API" data-id="${t.id}">🔄</button>
             <button class="delete-btn text-slate-400 hover:text-rose-400 text-xs p-1 transition-colors" title="Delete" data-id="${t.id}">&times;</button>
           </div>
         </div>
 
         <a href="/${encodeURIComponent(t.identifier_number)}" class="font-mono text-sm font-bold text-indigo-300 hover:text-indigo-200 tracking-wider hover:underline flex items-center justify-between">
           <span>${t.identifier_number}</span>
-          <span class="text-xs text-slate-500 font-sans font-normal">View &rarr;</span>
+          <span class="text-xs text-slate-500 font-sans font-normal">Details &rarr;</span>
         </a>
         
-        ${screenshotPreviewHtml}
+        ${t.status_details ? `<div class="text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">${t.status_details}</div>` : ''}
 
-        ${t.status_details ? `<div class="text-xs text-slate-400 leading-relaxed bg-slate-900/50 p-2 rounded-lg border border-slate-800">${t.status_details}</div>` : ''}
+        ${stagesHtml}
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-lg p-2.5 mt-1">
+          <div class="flex items-center justify-between">
+            <button type="button" class="toggle-json-btn text-[11px] font-mono font-semibold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors">
+              <span>{ }</span>
+              <span>API JSON Response</span>
+              <span class="json-arrow text-[9px]">▼</span>
+            </button>
+            <button type="button" class="copy-json-btn text-[10px] text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 font-mono transition-colors">Copy</button>
+          </div>
+          <pre class="json-pre hidden mt-2 p-2 bg-slate-950 border border-slate-800 rounded text-[10px] font-mono text-emerald-400 overflow-x-auto max-h-36 scrollbar-thin whitespace-pre leading-tight select-all">${prettyJson}</pre>
+        </div>
 
         <div class="text-[11px] text-slate-500 border-t border-slate-700/50 pt-2 flex items-center justify-between">
           <span>Last Checked:</span>
           <span class="text-slate-300 font-medium">${lastChecked}</span>
         </div>
       `;
+
+      // Event listener for JSON toggle
+      const toggleBtn = card.querySelector('.toggle-json-btn');
+      const jsonPre = card.querySelector('.json-pre');
+      const jsonArrow = card.querySelector('.json-arrow');
+      toggleBtn.addEventListener('click', () => {
+        jsonPre.classList.toggle('hidden');
+        jsonArrow.innerText = jsonPre.classList.contains('hidden') ? '▼' : '▲';
+      });
+
+      // Event listener for Copy JSON
+      const copyBtn = card.querySelector('.copy-json-btn');
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(prettyJson).then(() => {
+          const original = copyBtn.innerText;
+          copyBtn.innerText = 'Copied!';
+          setTimeout(() => copyBtn.innerText = original, 1200);
+        });
+      });
 
       // Event listener for delete
       card.querySelector('.delete-btn').addEventListener('click', async (e) => {

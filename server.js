@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const cron = require('node-cron');
 const path = require('path');
 const db = require('./database');
-const { runAllTrackers, enqueueTracker, getLatestScreenshot, getAutomationStatus } = require('./worker');
+const { runAllTrackers, enqueueTracker, scrapeIdentifierStatus, getLatestScreenshot, getAutomationStatus } = require('./worker');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -152,7 +152,7 @@ app.get('/api/me', (req, res) => {
 app.get('/api/trackers', requireAuth, (req, res) => {
   try {
     const trackers = db.prepare(`
-      SELECT id, type, identifier_number, current_status, status_details, latest_screenshot, last_checked_at, created_at 
+      SELECT id, type, identifier_number, current_status, status_details, json_data, last_checked_at, created_at 
       FROM trackers 
       WHERE user_id = ? 
       ORDER BY created_at DESC
@@ -274,7 +274,57 @@ app.post('/api/trackers/:id/check', requireAuth, (req, res) => {
   }
 });
 
-// ====================== DEV DEBUG / LIVE SCREENSHOT ROUTES ======================
+// ====================== PUBLIC ON-DEMAND SCRAPING API ======================
+
+app.post('/api/v1/scrape', async (req, res) => {
+  const identifier = (req.body.identifier || req.body.srn || req.body.number || req.body.eid || req.body.urn || '').trim();
+  const type = req.body.type;
+
+  if (!identifier) {
+    return res.status(400).json({
+      success: false,
+      error: 'Identifier is required. Provide "identifier" (SRN, EID, URN, or SID) in JSON body.'
+    });
+  }
+
+  try {
+    const result = await scrapeIdentifierStatus({ identifier, type });
+    res.json(result);
+  } catch (err) {
+    console.error(`[API /api/v1/scrape Error] ${identifier}:`, err.message);
+    res.status(500).json({
+      success: false,
+      identifier,
+      error: err.message
+    });
+  }
+});
+
+app.get('/api/v1/scrape', async (req, res) => {
+  const identifier = (req.query.identifier || req.query.srn || req.query.number || req.query.eid || req.query.urn || '').trim();
+  const type = req.query.type;
+
+  if (!identifier) {
+    return res.status(400).json({
+      success: false,
+      error: 'Identifier is required in query parameter (e.g. /api/v1/scrape?identifier=S1318711695580)'
+    });
+  }
+
+  try {
+    const result = await scrapeIdentifierStatus({ identifier, type });
+    res.json(result);
+  } catch (err) {
+    console.error(`[API /api/v1/scrape Error] ${identifier}:`, err.message);
+    res.status(500).json({
+      success: false,
+      identifier,
+      error: err.message
+    });
+  }
+});
+
+// ====================== DEV DEBUG / LIVE STATUS ROUTES ======================
 
 app.get('/api/debug/status', (req, res) => {
   res.json(getAutomationStatus());
@@ -309,6 +359,14 @@ app.get('/api/debug/screenshot', (req, res) => {
 cron.schedule('0 * * * *', () => {
   console.log('[Cron] Triggering 1-hour recurring tracker status poll...');
   runAllTrackers().catch(err => console.error('[Cron Runner Error]', err.message));
+});
+
+// Serve interactive API docs for /api and /docs
+app.get('/api', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'api_docs.html'));
+});
+app.get('/docs', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'api_docs.html'));
 });
 
 // Serve tracker detail page for /:identifier (e.g. /S1331127444880)

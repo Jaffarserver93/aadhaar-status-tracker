@@ -45,9 +45,19 @@ db.exec(`
   );
 `);
 
-// Auto-migrate column if existing table lacks latest_screenshot
+// Auto-migrate column if existing table lacks latest_screenshot or json_data
 try {
   db.exec("ALTER TABLE trackers ADD COLUMN latest_screenshot TEXT DEFAULT ''");
+} catch (e) {
+  // Column already exists
+}
+try {
+  db.exec("ALTER TABLE trackers ADD COLUMN json_data TEXT DEFAULT ''");
+} catch (e) {
+  // Column already exists
+}
+try {
+  db.exec("ALTER TABLE tracker_history ADD COLUMN json_data TEXT DEFAULT ''");
 } catch (e) {
   // Column already exists
 }
