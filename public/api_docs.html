@@ -32,18 +32,64 @@
     </div>
 
     <!-- Live Interactive API Tester -->
+    <!-- Live Interactive API Tester -->
     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-      <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
-        <span class="text-indigo-400 font-bold">🚀</span>
-        <h2 class="font-bold text-base text-white">Live Interactive API Tester</h2>
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-indigo-400 font-bold">🚀</span>
+          <h2 class="font-bold text-base text-white">Live Interactive API Tester</h2>
+        </div>
+        <div class="flex items-center gap-2 text-xs">
+          <button id="modeSrnBtn" class="px-3 py-1 bg-indigo-600 text-white rounded-lg font-semibold transition-all">SRN / URN</button>
+          <button id="modeEid14Btn" class="px-3 py-1 bg-slate-800 text-slate-400 hover:text-white rounded-lg font-semibold transition-all">EID (14-Digit + Date/Time)</button>
+          <button id="modeEid28Btn" class="px-3 py-1 bg-slate-800 text-slate-400 hover:text-white rounded-lg font-semibold transition-all">EID (28-Digit)</button>
+        </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row gap-3">
-        <input id="testInput" type="text" value="S1318711695580" placeholder="Enter SRN / URN / EID..." class="flex-1 px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl font-mono text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        <button id="sendTestBtn" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-indigo-600/30 flex items-center justify-center gap-2">
-          <span id="testSpinner" class="hidden w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-          <span>Execute API Call</span>
+      <!-- Single ID Mode (SRN, URN, SID) -->
+      <div id="boxSrn" class="space-y-2">
+        <label class="block text-xs font-semibold text-slate-400">Reference Number (SRN / URN / SID)</label>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input id="testInput" type="text" value="S1318711695580" placeholder="Enter SRN / URN..." class="flex-1 px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl font-mono text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <button id="sendTestBtn" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-indigo-600/30 flex items-center justify-center gap-2">
+            <span id="testSpinner" class="hidden w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <span>Execute API Call</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- EID 14-Digit + Date/Time Mode -->
+      <div id="boxEid14" class="hidden space-y-3 p-4 bg-slate-950/60 border border-indigo-500/20 rounded-xl">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">14-Digit Enrolment Number</label>
+          <input id="testEid14" type="text" value="08672031600941" placeholder="e.g. 0867/20316/00941" class="w-full px-4 py-2 bg-slate-950 border border-slate-700 rounded-xl font-mono text-sm text-white focus:ring-1 focus:ring-indigo-500">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Enrolment Date</label>
+            <input id="testEidDate" type="date" value="2026-10-14" class="w-full px-4 py-2 bg-slate-950 border border-slate-700 rounded-xl font-mono text-xs text-white focus:ring-1 focus:ring-indigo-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Enrolment Time</label>
+            <input id="testEidTime" type="time" step="1" value="16:22:56" class="w-full px-4 py-2 bg-slate-950 border border-slate-700 rounded-xl font-mono text-xs text-white focus:ring-1 focus:ring-indigo-500">
+          </div>
+        </div>
+        <button id="sendEid14TestBtn" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-indigo-600/30 flex items-center justify-center gap-2">
+          <span id="testEid14Spinner" class="hidden w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          <span>Execute EID API Call</span>
         </button>
+      </div>
+
+      <!-- EID 28-Digit Direct Mode -->
+      <div id="boxEid28" class="hidden space-y-2">
+        <label class="block text-xs font-semibold text-slate-400">Full 28-Digit EID</label>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input id="testEid28" type="text" value="0867203160094120261014162256" placeholder="28-digit EID..." class="flex-1 px-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl font-mono text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <button id="sendEid28TestBtn" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-indigo-600/30 flex items-center justify-center gap-2">
+            <span id="testEid28Spinner" class="hidden w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <span>Execute API Call</span>
+          </button>
+        </div>
       </div>
 
       <div id="testResultBox" class="hidden space-y-2">
@@ -64,33 +110,45 @@
           <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold font-mono rounded-lg">POST</span>
           <code class="text-base text-white font-mono font-semibold">/api/v1/scrape</code>
         </div>
-        <p class="text-xs text-slate-300">Submit an identifier in JSON body and receive real-time status and stages breakdown.</p>
+        <p class="text-xs text-slate-300">Submit an identifier (or 14-digit EID with date and time) in JSON body and receive real-time status and stages breakdown.</p>
 
-        <div>
-          <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Request Body (JSON)</h4>
-          <pre class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-indigo-300">{
-  "identifier": "S1318711695580",
-  "type": "SRN" // Optional: auto-detected if omitted
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Option A: SRN or 28-Digit EID</h4>
+            <pre class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-indigo-300">{
+  "identifier": "0867203160094120261014162256"
 }</pre>
+          </div>
+          <div>
+            <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Option B: 14-Digit EID + Date & Time</h4>
+            <pre class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-indigo-300">{
+  "eid": "0867/20316/00941",
+  "date": "2026-10-14",
+  "time": "16:22:56"
+}</pre>
+          </div>
         </div>
 
         <div>
-          <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">cURL Example</h4>
-          <pre class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-slate-300 overflow-x-auto">curl -X POST https://YOUR-APP.up.railway.app/api/v1/scrape \
+          <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">cURL Example (EID 14-digit + Date/Time)</h4>
+          <pre class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-slate-300 overflow-x-auto">curl -X POST http://localhost:3000/api/v1/scrape \
   -H "Content-Type: application/json" \
-  -d '{"identifier":"S1318711695580"}'</pre>
+  -d '{"eid":"08672031600941","date":"2026-10-14","time":"16:22:56"}'</pre>
         </div>
 
         <div>
           <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Python (requests) Example</h4>
           <pre class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-slate-300 overflow-x-auto">import requests
 
-res = requests.post("https://YOUR-APP.up.railway.app/api/v1/scrape", json={
-    "identifier": "S1318711695580"
+res = requests.post("http://localhost:3000/api/v1/scrape", json={
+    "eid": "08672031600941",
+    "date": "2026-10-14",
+    "time": "16:22:56"
 })
 data = res.json()
 print("Status:", data["status"])
-print("Details:", data["status_details"])</pre>
+print("Details:", data["status_details"])
+print("JSON Data:", data["json_data"])</pre>
         </div>
       </div>
 
@@ -98,13 +156,20 @@ print("Details:", data["status_details"])</pre>
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
         <div class="flex items-center gap-3">
           <span class="px-2.5 py-1 bg-sky-500/10 text-sky-400 border border-sky-500/20 text-xs font-bold font-mono rounded-lg">GET</span>
-          <code class="text-base text-white font-mono font-semibold">/api/v1/scrape?identifier={SRN}</code>
+          <code class="text-base text-white font-mono font-semibold">/api/v1/scrape</code>
         </div>
         <p class="text-xs text-slate-300">Quick URL query testing from browsers, webhooks, or simple HTTP clients.</p>
 
         <div>
-          <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">cURL Example</h4>
-          <pre class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-slate-300 overflow-x-auto">curl -s "https://YOUR-APP.up.railway.app/api/v1/scrape?identifier=S1318711695580"</pre>
+          <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">cURL Examples</h4>
+          <pre class="p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono text-slate-300 overflow-x-auto"># 1. 28-digit EID direct:
+curl -s "http://localhost:3000/api/v1/scrape?identifier=0867203160094120261014162256"
+
+# 2. 14-digit EID with date and time:
+curl -s "http://localhost:3000/api/v1/scrape?eid=08672031600941&date=2026-10-14&time=16:22:56"
+
+# 3. SRN check:
+curl -s "http://localhost:3000/api/v1/scrape?identifier=S1318711695580"</pre>
         </div>
       </div>
 
@@ -113,29 +178,60 @@ print("Details:", data["status_details"])</pre>
   </main>
 
   <script>
-    const testBtn = document.getElementById('sendTestBtn');
-    const testInput = document.getElementById('testInput');
-    const testSpinner = document.getElementById('testSpinner');
+    const modeSrnBtn = document.getElementById('modeSrnBtn');
+    const modeEid14Btn = document.getElementById('modeEid14Btn');
+    const modeEid28Btn = document.getElementById('modeEid28Btn');
+
+    const boxSrn = document.getElementById('boxSrn');
+    const boxEid14 = document.getElementById('boxEid14');
+    const boxEid28 = document.getElementById('boxEid28');
+
+    const activeTabClass = 'px-3 py-1 bg-indigo-600 text-white rounded-lg font-semibold transition-all';
+    const inactiveTabClass = 'px-3 py-1 bg-slate-800 text-slate-400 hover:text-white rounded-lg font-semibold transition-all';
+
+    modeSrnBtn.addEventListener('click', () => {
+      modeSrnBtn.className = activeTabClass;
+      modeEid14Btn.className = inactiveTabClass;
+      modeEid28Btn.className = inactiveTabClass;
+      boxSrn.classList.remove('hidden');
+      boxEid14.classList.add('hidden');
+      boxEid28.classList.add('hidden');
+    });
+
+    modeEid14Btn.addEventListener('click', () => {
+      modeEid14Btn.className = activeTabClass;
+      modeSrnBtn.className = inactiveTabClass;
+      modeEid28Btn.className = inactiveTabClass;
+      boxEid14.classList.remove('hidden');
+      boxSrn.classList.add('hidden');
+      boxEid28.classList.add('hidden');
+    });
+
+    modeEid28Btn.addEventListener('click', () => {
+      modeEid28Btn.className = activeTabClass;
+      modeSrnBtn.className = inactiveTabClass;
+      modeEid14Btn.className = inactiveTabClass;
+      boxEid28.classList.remove('hidden');
+      boxSrn.classList.add('hidden');
+      boxEid14.classList.add('hidden');
+    });
+
     const resultBox = document.getElementById('testResultBox');
     const resultPre = document.getElementById('testResultPre');
     const timeText = document.getElementById('respTimeText');
     const copyBtn = document.getElementById('copyRespBtn');
-
     let lastJson = '';
 
-    testBtn.addEventListener('click', async () => {
-      const id = testInput.value.trim();
-      if (!id) return;
-
-      testSpinner.classList.remove('hidden');
-      testBtn.disabled = true;
+    async function executeApiCall(payload, spinner, button) {
+      spinner.classList.remove('hidden');
+      button.disabled = true;
       const t0 = Date.now();
 
       try {
         const res = await fetch('/api/v1/scrape', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ identifier: id })
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
         const elapsed = Date.now() - t0;
@@ -148,9 +244,44 @@ print("Details:", data["status_details"])</pre>
         resultPre.innerText = JSON.stringify({ error: err.message }, null, 2);
         resultBox.classList.remove('hidden');
       } finally {
-        testSpinner.classList.add('hidden');
-        testBtn.disabled = false;
+        spinner.classList.add('hidden');
+        button.disabled = false;
       }
+    }
+
+    document.getElementById('sendTestBtn').addEventListener('click', () => {
+      const id = document.getElementById('testInput').value.trim();
+      if (!id) return;
+      executeApiCall(
+        { identifier: id },
+        document.getElementById('testSpinner'),
+        document.getElementById('sendTestBtn')
+      );
+    });
+
+    document.getElementById('sendEid14TestBtn').addEventListener('click', () => {
+      const enr = document.getElementById('testEid14').value.trim();
+      const date = document.getElementById('testEidDate').value;
+      const time = document.getElementById('testEidTime').value;
+      if (!enr || !date || !time) {
+        alert('Please enter Enrolment Number, Date, and Time.');
+        return;
+      }
+      executeApiCall(
+        { eid: enr, date, time },
+        document.getElementById('testEid14Spinner'),
+        document.getElementById('sendEid14TestBtn')
+      );
+    });
+
+    document.getElementById('sendEid28TestBtn').addEventListener('click', () => {
+      const eid28 = document.getElementById('testEid28').value.trim();
+      if (!eid28) return;
+      executeApiCall(
+        { identifier: eid28, type: 'EID' },
+        document.getElementById('testEid28Spinner'),
+        document.getElementById('sendEid28TestBtn')
+      );
     });
 
     copyBtn.addEventListener('click', () => {

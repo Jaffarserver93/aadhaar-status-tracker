@@ -179,24 +179,101 @@ function submitTathyaStatusCheck(identifier, captchaValue, transactionId, tracke
   });
 }
 
+// ====================== EID HELPER FUNCTIONS ======================
+
+/**
+ * Normalizes an EID into a standard 28-digit string (14-digit Enrolment No + YYYYMMDDHHmmss).
+ * Accepts:
+ *  - 28 pure digits (e.g. "0867203160094120261014162256")
+ *  - 14 digits + separate date & time (e.g. rawId: "0867/20316/00941", dateStr: "2026-10-14", timeStr: "16:22:56")
+ *  - Combined single string with spaces/slashes (e.g. "0867/20316/00941 14/10/2026 16:22:56")
+ */
+function format28DigitEid(rawId, dateStr, timeStr) {
+  if (!rawId) return '';
+  let id = rawId.trim();
+
+  // Check if identifier is a combined string copied from an enrolment slip:
+  // e.g. "0867/20316/00941 14/10/2026 16:22:56" or "08672031600941 2026-10-14 16:22:56"
+  const combinedMatch = id.match(/^(\d{4}\/\d{5}\/\d{5}|\d{14})[\s,]+(\d{1,4}[-\/]\d{1,2}[-\/]\d{1,4})[\s,]+(\d{1,2}:\d{1,2}(?::\d{1,2})?)/);
+  if (combinedMatch) {
+    return format28DigitEid(combinedMatch[1], combinedMatch[2], combinedMatch[3]);
+  }
+
+  const cleanDigits = id.replace(/\D/g, '');
+
+  // If 14 digits and separate date & time provided
+  if (cleanDigits.length === 14 && dateStr && timeStr) {
+    let yyyy = '', mm = '', dd = '';
+    const dStr = dateStr.trim();
+    if (dStr.includes('-')) {
+      const parts = dStr.split('-');
+      if (parts[0].length === 4) {
+        [yyyy, mm, dd] = parts;
+      } else {
+        [dd, mm, yyyy] = parts;
+      }
+    } else if (dStr.includes('/')) {
+      const parts = dStr.split('/');
+      if (parts[0].length === 4) {
+        [yyyy, mm, dd] = parts;
+      } else {
+        [dd, mm, yyyy] = parts;
+      }
+    }
+
+    const tStr = timeStr.trim();
+    const timeParts = tStr.split(':');
+    const hh = (timeParts[0] || '00').padStart(2, '0');
+    const min = (timeParts[1] || '00').padStart(2, '0');
+    const ss = (timeParts[2] || '00').padStart(2, '0');
+
+    if (yyyy && mm && dd) {
+      return `${cleanDigits}${yyyy}${mm.padStart(2, '0')}${dd.padStart(2, '0')}${hh}${min}${ss}`;
+    }
+  }
+
+  // If 28 digits already
+  if (cleanDigits.length === 28) {
+    return cleanDigits;
+  }
+
+  return cleanDigits || id;
+}
+
 // ====================== CORE API SCRAPER FUNCTION ======================
 
 /**
  * Scrapes status directly via Tathya API with instant BlazCaptcha OCR solver
- * @param {Object} params { identifier, type }
+ * @param {Object} params { identifier, type, date, time }
  * @returns {Promise<Object>} Formatted status result with raw json_data
  */
-async function scrapeIdentifierStatus({ identifier, type }) {
-  const cleanId = (identifier || '').trim();
-  let trackerType = (type || 'EID').toUpperCase();
+async function scrapeIdentifierStatus({ identifier, type, date, time }) {
+  let cleanId = (identifier || '').trim();
+  let trackerType = (type || '').toUpperCase();
 
-  // Auto-detect type
-  if (cleanId.toUpperCase().startsWith('S')) {
-    trackerType = cleanId.length > 20 ? 'SID' : 'SRN';
-  } else if (/^\d{8}$/.test(cleanId)) {
-    trackerType = 'URN';
-  } else if (/^\d{14}$|^\d{28}$/.test(cleanId.replace(/[\/\s-]/g, ''))) {
+  // Auto-detect or normalize EID
+  if (trackerType === 'EID' || (!trackerType && /^\d{14}$|^\d{28}$/.test(cleanId.replace(/[\/\s-]/g, '')))) {
     trackerType = 'EID';
+    cleanId = format28DigitEid(cleanId, date, time);
+  } else if (!trackerType) {
+    if (cleanId.toUpperCase().startsWith('S')) {
+      trackerType = cleanId.length > 20 ? 'SID' : 'SRN';
+    } else if (/^\d{8}$/.test(cleanId)) {
+      trackerType = 'URN';
+    } else {
+      trackerType = 'SRN';
+    }
+  }
+
+  // Ensure EID is pure 28 digits
+  if (trackerType === 'EID') {
+    cleanId = cleanId.replace(/\D/g, '');
+    if (cleanId.length === 14) {
+      throw new Error('14-digit Enrolment Number requires date and time (e.g. date: 2026-10-14, time: 16:22:56) to construct the 28-digit EID required by UIDAI.');
+    }
+    if (cleanId.length !== 28) {
+      throw new Error(`Invalid EID length (${cleanId.length} digits). EID must be 28 digits (14-digit Enrolment No + 14-digit Date/Time).`);
+    }
   }
 
   const startTime = Date.now();
@@ -371,6 +448,7 @@ async function runAllTrackers() {
 }
 
 module.exports = {
+  format28DigitEid,
   scrapeIdentifierStatus,
   checkTrackerStatus,
   runAllTrackers,

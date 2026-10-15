@@ -56,12 +56,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const openModal = () => {
     modalError.classList.add('hidden');
     modal.classList.remove('hidden');
-    document.getElementById('trackerNumber').focus();
+    syncTypeInputs();
   };
 
   const closeModal = () => {
     modal.classList.add('hidden');
     trackerForm.reset();
+    syncTypeInputs();
   };
 
   addBtn.addEventListener('click', openModal);
@@ -71,6 +72,53 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Close modal when clicking on backdrop
   modal.addEventListener('click', (e) => {
     if (e.target === modal) closeModal();
+  });
+
+  // Type selection switching (EID vs Standard)
+  const trackerTypeSelect = document.getElementById('trackerType');
+  const eidInputContainer = document.getElementById('eidInputContainer');
+  const standardInputContainer = document.getElementById('standardInputContainer');
+  const trackerNumberInput = document.getElementById('trackerNumber');
+  const eid14Fields = document.getElementById('eid14Fields');
+  const eid28Fields = document.getElementById('eid28Fields');
+
+  function syncTypeInputs() {
+    const selectedType = trackerTypeSelect.value;
+    if (selectedType === 'EID') {
+      eidInputContainer.classList.remove('hidden');
+      standardInputContainer.classList.add('hidden');
+      trackerNumberInput.removeAttribute('required');
+      document.getElementById('eid14Number').focus();
+    } else {
+      eidInputContainer.classList.add('hidden');
+      standardInputContainer.classList.remove('hidden');
+      trackerNumberInput.setAttribute('required', 'true');
+      if (selectedType === 'SRN') {
+        trackerNumberInput.placeholder = 'e.g. S1318711695580';
+      } else if (selectedType === 'URN') {
+        trackerNumberInput.placeholder = 'e.g. 12345678';
+      } else {
+        trackerNumberInput.placeholder = 'e.g. S followed by 27 digits';
+      }
+      trackerNumberInput.focus();
+    }
+  }
+
+  trackerTypeSelect.addEventListener('change', syncTypeInputs);
+
+  // EID Mode switcher (14-digit + Date/Time vs Direct 28-digit)
+  document.querySelectorAll('input[name="eidMode"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      if (e.target.value === '14digit') {
+        eid14Fields.classList.remove('hidden');
+        eid28Fields.classList.add('hidden');
+        document.getElementById('eid14Number').focus();
+      } else {
+        eid14Fields.classList.add('hidden');
+        eid28Fields.classList.remove('hidden');
+        document.getElementById('eid28Number').focus();
+      }
+    });
   });
 
   // Logout Handler
@@ -188,10 +236,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
         </div>
 
-        <a href="/${encodeURIComponent(t.identifier_number)}" class="font-mono text-sm font-bold text-indigo-300 hover:text-indigo-200 tracking-wider hover:underline flex items-center justify-between">
-          <span>${t.identifier_number}</span>
-          <span class="text-xs text-slate-500 font-sans font-normal">Details &rarr;</span>
-        </a>
+        <div>
+          <a href="/${encodeURIComponent(t.identifier_number)}" class="font-mono text-sm font-bold text-indigo-300 hover:text-indigo-200 tracking-wider hover:underline flex items-center justify-between">
+            <span>${(t.type === 'EID' && (t.identifier_number || '').length === 28) ? `${t.identifier_number.slice(0, 4)}/${t.identifier_number.slice(4, 9)}/${t.identifier_number.slice(9, 14)}` : t.identifier_number}</span>
+            <span class="text-xs text-slate-500 font-sans font-normal">Details &rarr;</span>
+          </a>
+          ${(t.type === 'EID' && (t.identifier_number || '').length === 28) ? `<div class="text-[11px] text-indigo-300/80 font-mono mt-0.5">📅 ${t.identifier_number.slice(20, 22)}/${t.identifier_number.slice(18, 20)}/${t.identifier_number.slice(14, 18)} &nbsp;⏰ ${t.identifier_number.slice(22, 24)}:${t.identifier_number.slice(24, 26)}:${t.identifier_number.slice(26, 28)}</div>` : ''}
+        </div>
         
         ${t.status_details ? `<div class="text-xs text-slate-300 leading-relaxed bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">${t.status_details}</div>` : ''}
 
@@ -275,13 +326,59 @@ document.addEventListener('DOMContentLoaded', async () => {
     saveBtn.innerText = 'Adding...';
 
     const type = document.getElementById('trackerType').value;
-    const identifier_number = document.getElementById('trackerNumber').value.trim();
+    let identifier_number = '';
+    let date = '';
+    let time = '';
+
+    if (type === 'EID') {
+      const mode = document.querySelector('input[name="eidMode"]:checked')?.value || '14digit';
+      if (mode === '14digit') {
+        const enr = document.getElementById('eid14Number').value.trim();
+        date = document.getElementById('eidDate').value;
+        time = document.getElementById('eidTime').value;
+
+        if (!enr) {
+          modalError.innerText = 'Please enter the 14-digit Enrolment Number.';
+          modalError.classList.remove('hidden');
+          saveBtn.disabled = false;
+          saveBtn.innerText = 'Start Tracking';
+          return;
+        }
+        if (!date || !time) {
+          modalError.innerText = 'Please select both Enrolment Date and Enrolment Time.';
+          modalError.classList.remove('hidden');
+          saveBtn.disabled = false;
+          saveBtn.innerText = 'Start Tracking';
+          return;
+        }
+        identifier_number = enr;
+      } else {
+        const full28 = document.getElementById('eid28Number').value.trim();
+        if (!full28 || full28.replace(/\D/g, '').length !== 28) {
+          modalError.innerText = 'Please enter a valid 28-digit EID.';
+          modalError.classList.remove('hidden');
+          saveBtn.disabled = false;
+          saveBtn.innerText = 'Start Tracking';
+          return;
+        }
+        identifier_number = full28;
+      }
+    } else {
+      identifier_number = document.getElementById('trackerNumber').value.trim();
+      if (!identifier_number) {
+        modalError.innerText = 'Please enter an identifier number.';
+        modalError.classList.remove('hidden');
+        saveBtn.disabled = false;
+        saveBtn.innerText = 'Start Tracking';
+        return;
+      }
+    }
 
     try {
       const res = await fetch('/api/trackers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type, identifier_number })
+        body: JSON.stringify({ type, identifier_number, date, time })
       });
 
       const data = await res.json();

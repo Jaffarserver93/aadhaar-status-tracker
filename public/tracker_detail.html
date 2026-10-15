@@ -186,7 +186,23 @@
         document.getElementById('contentContainer').classList.remove('hidden');
 
         document.getElementById('typeBadge').innerText = t.type;
-        document.getElementById('identifierText').innerText = t.identifier_number;
+        if (t.type === 'EID' && (t.identifier_number || '').length === 28) {
+          const enr = t.identifier_number.substring(0, 14);
+          const formattedEnr = `${enr.slice(0, 4)}/${enr.slice(4, 9)}/${enr.slice(9, 14)}`;
+          const yr = t.identifier_number.substring(14, 18);
+          const mo = t.identifier_number.substring(18, 20);
+          const da = t.identifier_number.substring(20, 22);
+          const hr = t.identifier_number.substring(22, 24);
+          const mi = t.identifier_number.substring(24, 26);
+          const sc = t.identifier_number.substring(26, 28);
+          document.getElementById('identifierText').innerHTML = `
+            <span>${formattedEnr}</span>
+            <div class="text-xs font-mono font-normal text-indigo-300 mt-1">📅 ${da}/${mo}/${yr} &nbsp;⏰ ${hr}:${mi}:${sc} &nbsp;<span class="text-slate-500">(${t.identifier_number})</span></div>
+          `;
+        } else {
+          document.getElementById('identifierText').innerText = t.identifier_number;
+        }
+
         document.getElementById('detailsText').innerText = t.status_details || 'No status details available.';
         document.getElementById('createdText').innerText = new Date(t.created_at).toLocaleString();
         document.getElementById('lastCheckedText').innerText = t.last_checked_at ? new Date(t.last_checked_at).toLocaleString() : 'Never';
@@ -233,6 +249,29 @@
               : (isCurr ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-slate-800 text-slate-500 border-slate-700');
             const icon = isDone ? '✓' : (isCurr ? '⟳' : '○');
 
+            let subStagesHtml = '';
+            if (st.subStages && st.subStages.length > 0) {
+              subStagesHtml = `
+                <div class="mt-2.5 pt-2.5 border-t border-slate-800 space-y-1.5">
+                  <div class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Sub-Stages:</div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                    ${st.subStages.map(sub => {
+                      const isSubDone = sub.subStageStatus === 'COMPLETE';
+                      const isSubCurr = sub.subStageStatus === 'INPROGRESS';
+                      const subBadge = isSubDone ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : (isSubCurr ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-slate-900 text-slate-500 border-slate-800');
+                      const subIcon = isSubDone ? '✓' : (isSubCurr ? '⟳' : '○');
+                      return `
+                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800/80 text-[11px]">
+                          <span class="text-slate-300 font-medium">${sub.subStageName}</span>
+                          <span class="text-[9px] px-1.5 py-0.5 rounded font-mono border ${subBadge}">${sub.subStageStatus} ${subIcon}</span>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            }
+
             const item = document.createElement('div');
             item.className = 'bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 space-y-1';
             item.innerHTML = `
@@ -241,6 +280,7 @@
                 <span class="text-[10px] px-2 py-0.5 rounded font-mono border ${badgeClass}">${st.state} ${icon}</span>
               </div>
               <p class="text-xs text-slate-400">${st.message || st.messageLocal || 'No stage message'}</p>
+              ${subStagesHtml}
             `;
             stagesList.appendChild(item);
           });

@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const cron = require('node-cron');
 const path = require('path');
 const db = require('./database');
-const { runAllTrackers, enqueueTracker, scrapeIdentifierStatus, getLatestScreenshot, getAutomationStatus } = require('./worker');
+const { runAllTrackers, enqueueTracker, scrapeIdentifierStatus, format28DigitEid, getLatestScreenshot, getAutomationStatus } = require('./worker');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -194,16 +194,33 @@ app.get('/api/trackers/:identifier/details', requireAuth, (req, res) => {
 
 // Create a new tracker entry (duplicate check across all 3 pipeline sections)
 app.post('/api/trackers', requireAuth, (req, res) => {
-  const { type, identifier_number } = req.body;
+  let { type, identifier_number, date, time } = req.body;
   
   if (!['EID', 'SRN', 'URN', 'SID'].includes(type)) {
     return res.status(400).json({ error: 'Invalid tracking type. Must be EID, SRN, URN, or SID.' });
   }
-  if (!identifier_number || identifier_number.trim() === '') {
-    return res.status(400).json({ error: 'Identifier number is required.' });
+
+  let cleanIdentifier = (identifier_number || '').trim();
+
+  if (type === 'EID') {
+    cleanIdentifier = format28DigitEid(cleanIdentifier, date, time);
+    const digits = cleanIdentifier.replace(/\D/g, '');
+    if (digits.length === 14) {
+      return res.status(400).json({ 
+        error: '14-digit Enrolment Number requires Date and Time to form the complete 28-digit EID.' 
+      });
+    }
+    if (digits.length !== 28) {
+      return res.status(400).json({ 
+        error: `Invalid EID length (${digits.length} digits). EID must be 28 digits (14-digit Enrolment No + 14-digit Date/Time).` 
+      });
+    }
+    cleanIdentifier = digits;
   }
 
-  const cleanIdentifier = identifier_number.trim();
+  if (!cleanIdentifier) {
+    return res.status(400).json({ error: 'Identifier number is required.' });
+  }
 
   try {
     // Check if tracker already exists for this user across all 3 sections (Processing, Completed, Failed)
@@ -279,16 +296,18 @@ app.post('/api/trackers/:id/check', requireAuth, (req, res) => {
 app.post('/api/v1/scrape', async (req, res) => {
   const identifier = (req.body.identifier || req.body.srn || req.body.number || req.body.eid || req.body.urn || '').trim();
   const type = req.body.type;
+  const date = req.body.date;
+  const time = req.body.time;
 
   if (!identifier) {
     return res.status(400).json({
       success: false,
-      error: 'Identifier is required. Provide "identifier" (SRN, EID, URN, or SID) in JSON body.'
+      error: 'Identifier is required. Provide "identifier" (SRN, EID, URN, or SID) or "eid", "date", "time" in JSON body.'
     });
   }
 
   try {
-    const result = await scrapeIdentifierStatus({ identifier, type });
+    const result = await scrapeIdentifierStatus({ identifier, type, date, time });
     res.json(result);
   } catch (err) {
     console.error(`[API /api/v1/scrape Error] ${identifier}:`, err.message);
@@ -303,16 +322,18 @@ app.post('/api/v1/scrape', async (req, res) => {
 app.get('/api/v1/scrape', async (req, res) => {
   const identifier = (req.query.identifier || req.query.srn || req.query.number || req.query.eid || req.query.urn || '').trim();
   const type = req.query.type;
+  const date = req.query.date;
+  const time = req.query.time;
 
   if (!identifier) {
     return res.status(400).json({
       success: false,
-      error: 'Identifier is required in query parameter (e.g. /api/v1/scrape?identifier=S1318711695580)'
+      error: 'Identifier is required in query parameter (e.g. /api/v1/scrape?identifier=S1318711695580 or /api/v1/scrape?eid=08672031600941&date=2026-10-14&time=16:22:56)'
     });
   }
 
   try {
-    const result = await scrapeIdentifierStatus({ identifier, type });
+    const result = await scrapeIdentifierStatus({ identifier, type, date, time });
     res.json(result);
   } catch (err) {
     console.error(`[API /api/v1/scrape Error] ${identifier}:`, err.message);
